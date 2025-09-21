@@ -1,0 +1,18 @@
+export const en = {
+    welcomeBack: 'Welcome back, {name}!',
+    dashboardGreeting: "Here's your quality and compliance overview for today.",
+    quickActions: 'Quick Actions',
+    viewMyTasks: 'View My Tasks',
+    totalProjects: 'Total Projects',
+    inProgress: 'In Progress',
+    completed: 'Completed',
+    overallCompliance: 'Overall Compliance',
+    openCapaReports: 'Open CAPA Reports',
+    upcomingDeadlines: 'Upcoming Deadlines (30 Days)',
+    projectComplianceRate: 'Project Compliance Rate (%)',
+    complianceRate: 'Compliance Rate',
+    projectStatusDistribution: 'Project Status Distribution',
+    pendingTasks: 'Pending Tasks',
+    inProject: 'in project',
+    noOpenCapa: 'No open CAPA reports. Great job maintaining compliance!',
+};

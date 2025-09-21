@@ -1,0 +1,18 @@
+export const ar = {
+    welcomeBack: 'مرحباً بعودتك، {name}!',
+    dashboardGreeting: 'إليك نظرة عامة على الجودة والامتثال اليوم.',
+    quickActions: 'إجراءات سريعة',
+    viewMyTasks: 'عرض مهامي',
+    totalProjects: 'إجمالي المشاريع',
+    inProgress: 'قيد التنفيذ',
+    completed: 'مكتمل',
+    overallCompliance: 'الامتثال العام',
+    openCapaReports: 'تقارير CAPA المفتوحة',
+    upcomingDeadlines: 'المواعيد النهائية القادمة (30 يومًا)',
+    projectComplianceRate: 'معدل امتثال المشاريع (%)',
+    complianceRate: 'معدل الامتثال',
+    projectStatusDistribution: 'توزيع حالات المشاريع',
+    pendingTasks: 'المهام المعلقة',
+    inProject: 'في مشروع',
+    noOpenCapa: 'لا توجد تقارير CAPA مفتوحة. عمل رائع في الحفاظ على الامتثال!',
+};
