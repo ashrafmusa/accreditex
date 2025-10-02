@@ -7,14 +7,14 @@ import { getFirestore } from "firebase/firestore";
 // TODO: Replace with your app's Firebase project configuration.
 // You can get this from the Firebase Console: Project settings > General > Your apps > Web app
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyBPkTWdojLlQBG7E9OPWCXPZ_Zzg31YrLg",
   authDomain: "accreditex-79c08.firebaseapp.com",
   projectId: "accreditex-79c08",
-  storageBucket: "accreditex-79c08.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  storageBucket: "accreditex-79c08.firebasestorage.app",
+  messagingSenderId: "600504438909",
+  appId: "1:600504438909:web:5e25200e69243a615e2114",
+  measurementId: "G-41932M9TKF"
 };
-
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
 
