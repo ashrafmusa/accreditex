@@ -15,4 +15,16 @@ export const en = {
     pendingTasks: 'Pending Tasks',
     inProject: 'in project',
     noOpenCapa: 'No open CAPA reports. Great job maintaining compliance!',
+    // Project Lead Dashboard
+    projectLeadDashboardTitle: "Project Lead Dashboard",
+    myProjects: "My Projects",
+    teamCompliance: "Team Compliance",
+    // Team Member Dashboard
+    teamMemberDashboardTitle: "My Dashboard",
+    myOpenTasks: "My Open Tasks",
+    myComplianceRate: "My Compliance Rate",
+    tasksCompleted: "Tasks Completed",
+    overdue: "Overdue",
+    // New
+    barChartTooltip: 'Click to view project',
 };

@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, FC } from 'react';
-import { Competency } from '@/types';
+import { Competency } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface CompetencyModalProps {

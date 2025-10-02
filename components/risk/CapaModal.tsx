@@ -1,9 +1,10 @@
 import React, { useState, useEffect, FC } from 'react';
-import { ChecklistItem, User, CAPAReport, TrainingProgram, IncidentReport, Project } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { SparklesIcon } from '@/components/icons';
-import { backendService } from '@/services/BackendService';
-import { useToast } from '@/hooks/useToast';
+import { ChecklistItem, User, CAPAReport, TrainingProgram, IncidentReport, Project } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
+import { SparklesIcon } from '../icons';
+import { backendService } from '../../services/BackendService';
+import { useToast } from '../../hooks/useToast';
+import DatePicker from '../ui/DatePicker';
 
 interface CapaModalProps {
   isOpen: boolean;
@@ -26,9 +27,9 @@ const CapaModal: FC<CapaModalProps> = ({ isOpen, onClose, onSave, users, trainin
   const [trainingRecommendationId, setTrainingRecommendationId] = useState('');
   const [actionPlan, setActionPlan] = useState('');
   const [assignedTo, setAssignedTo] = useState<string | null>(null);
-  const [dueDate, setDueDate] = useState('');
+  const [dueDate, setDueDate] = useState<Date | undefined>();
   const [effectivenessCheckRequired, setEffectivenessCheckRequired] = useState(false);
-  const [effectivenessCheckDueDate, setEffectivenessCheckDueDate] = useState('');
+  const [effectivenessCheckDueDate, setEffectivenessCheckDueDate] = useState<Date | undefined>();
   
   const isIncidentSource = 'incidentDate' in sourceItem;
   const [selectedProjectId, setSelectedProjectId] = useState(projectId || '');
@@ -49,9 +50,9 @@ const CapaModal: FC<CapaModalProps> = ({ isOpen, onClose, onSave, users, trainin
       setTrainingRecommendationId('');
       setActionPlan('');
       setAssignedTo(null);
-      setDueDate('');
+      setDueDate(undefined);
       setEffectivenessCheckRequired(false);
-      setEffectivenessCheckDueDate('');
+      setEffectivenessCheckDueDate(undefined);
       setSelectedProjectId(projectId || '');
     }
   }, [isOpen, projectId]);
@@ -64,7 +65,6 @@ const CapaModal: FC<CapaModalProps> = ({ isOpen, onClose, onSave, users, trainin
     }
     
     const baseCapa = {
-// FIX: Added 'as const' to ensure TypeScript infers the literal type 'Open', not 'string', satisfying the CAPAReport type definition.
         status: 'Open' as const,
         type,
         description: isIncidentSource ? (sourceItem as IncidentReport).description : (sourceItem as ChecklistItem).item,
@@ -73,10 +73,10 @@ const CapaModal: FC<CapaModalProps> = ({ isOpen, onClose, onSave, users, trainin
         trainingRecommendationId: trainingRecommendationId || undefined,
         actionPlan,
         assignedTo,
-        dueDate,
+        dueDate: dueDate.toISOString().split('T')[0],
         createdAt: new Date().toISOString(),
-        effectivenessCheck: effectivenessCheckRequired
-            ? { required: true, dueDate: effectivenessCheckDueDate, completed: false, notes: '' }
+        effectivenessCheck: effectivenessCheckRequired && effectivenessCheckDueDate
+            ? { required: true, dueDate: effectivenessCheckDueDate.toISOString().split('T')[0], completed: false, notes: '' }
             : undefined,
     };
 
@@ -187,7 +187,7 @@ const CapaModal: FC<CapaModalProps> = ({ isOpen, onClose, onSave, users, trainin
               </div>
               <div>
                   <label htmlFor="dueDate" className={labelClasses}>{t('dueDate')}</label>
-                  <input type="date" id="dueDate" value={dueDate} onChange={e => setDueDate(e.target.value)} className={inputClasses} required />
+                  <DatePicker date={dueDate} setDate={setDueDate} />
               </div>
               </div>
               <div className="border-t dark:border-dark-brand-border pt-4 mt-4">
@@ -204,15 +204,7 @@ const CapaModal: FC<CapaModalProps> = ({ isOpen, onClose, onSave, users, trainin
               {effectivenessCheckRequired && (
                   <div className="mt-4 animate-[fadeInUp_0.3s_ease-out]">
                       <label htmlFor="effectivenessDueDate" className={labelClasses}>{t('checkDueDate')}</label>
-                      <input
-                          type="date"
-                          id="effectivenessDueDate"
-                          value={effectivenessCheckDueDate}
-                          onChange={(e) => setEffectivenessCheckDueDate(e.target.value)}
-                          className={inputClasses}
-                          required={effectivenessCheckRequired}
-                          min={dueDate || new Date().toISOString().split('T')[0]}
-                      />
+                      <DatePicker date={effectivenessCheckDueDate} setDate={setEffectivenessCheckDueDate} fromDate={dueDate} />
                   </div>
               )}
           </div>

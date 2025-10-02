@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Department, Project, TrainingProgram, UserTrainingStatus, Competency, AppDocument, NavigationState } from '@/types';
+import { User, Department, Project, TrainingProgram, UserTrainingStatus, Competency, AppDocument, NavigationState } from '../types';
 import UserProfileHeader from '../components/users/UserProfileHeader';
 import UserCompetencies from '../components/users/UserCompetencies';
 import UserTrainingDashboard from '../components/users/UserTrainingDashboard';

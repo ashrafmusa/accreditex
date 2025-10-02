@@ -1,6 +1,6 @@
 import React, { useState, useEffect, FC, useCallback, useMemo } from 'react';
-import { ToastContext, ToastMessage, ToastContextType, ToastType } from '@/hooks/useToast';
-import { CheckCircleIcon, XCircleIcon, InformationCircleIcon, XMarkIcon } from '@/components/icons';
+import { ToastContext, ToastMessage, ToastContextType, ToastType } from '../../hooks/useToast';
+import { CheckCircleIcon, XCircleIcon, InformationCircleIcon, XMarkIcon } from '../icons';
 
 const ICONS = {
     success: <CheckCircleIcon className="w-6 h-6 text-white" />,

@@ -1,14 +1,16 @@
 
 
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Project, NavigationState, ProjectStatus, User, UserRole, Department, AccreditationProgram } from '@/types';
-import { CheckCircleIcon, ClockIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, SearchIcon, ViewColumnsIcon, ViewGridIcon, FolderIcon } from '@/components/icons';
-import { useTranslation } from '@/hooks/useTranslation';
-import ProjectCard from '@/components/projects/ProjectCard';
-import EmptyState from '@/components/common/EmptyState';
-import { useProjectStore } from '@/stores/useProjectStore';
-import { useUserStore } from '@/stores/useUserStore';
-import { useAppStore } from '@/stores/useAppStore';
+// FIX: Corrected import path for types
+import { Project, NavigationState, ProjectStatus, User, UserRole, Department, AccreditationProgram } from '../types';
+import { CheckCircleIcon, ClockIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, SearchIcon, ViewColumnsIcon, ViewGridIcon, FolderIcon } from '../components/icons';
+import { useTranslation } from '../hooks/useTranslation';
+import ProjectCard from '../components/projects/ProjectCard';
+import EmptyState from '../components/common/EmptyState';
+import { useProjectStore } from '../stores/useProjectStore';
+import { useUserStore } from '../stores/useUserStore';
+import { useAppStore } from '../stores/useAppStore';
 
 type ViewMode = 'grid' | 'board';
 
@@ -168,7 +170,8 @@ const ProjectListPage: React.FC<ProjectListPageProps> = ({ setNavigation }) => {
             <div key={status} className="w-80 flex-shrink-0">
               <h3 className={`flex items-center gap-2 font-semibold px-3 py-2 rounded-t-lg ${statusIndicator[status].bg} ${statusIndicator[status].color}`}>
                   <StatusIcon className="w-5 h-5"/>
-                  {t((status.charAt(0).toLowerCase() + status.slice(1).replace(/\s/g, '')) as any)} ({projectsByStatus[status].length})
+                  {/* FIX: Correctly type the translation key */}
+                  {t((status.charAt(0).toLowerCase() + status.slice(1).replace(/\s/g, '')) as keyof typeof t)} ({projectsByStatus[status].length})
               </h3>
               <div className={`p-2 space-y-4 h-full bg-slate-50 dark:bg-slate-900/50 rounded-b-lg`}>
                 {projectsByStatus[status].map(project => (
@@ -209,6 +212,7 @@ const ProjectListPage: React.FC<ProjectListPageProps> = ({ setNavigation }) => {
                   <SearchIcon className="absolute ltr:left-3 rtl:right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input type="text" placeholder={t('searchByName')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full ltr:pl-10 rtl:pr-10 px-4 py-2 border border-brand-border dark:border-dark-brand-border rounded-lg bg-transparent"/>
               </div>
+              {/* FIX: Correctly type the key for the option element. */}
               <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="w-full border border-brand-border dark:border-dark-brand-border rounded-lg bg-transparent"><option value="All">{t('allStatuses')}</option>{Object.values(ProjectStatus).map(s => <option key={s} value={s}>{s}</option>)}</select>
               <select value={programFilter} onChange={e => setProgramFilter(e.target.value)} className="w-full border border-brand-border dark:border-dark-brand-border rounded-lg bg-transparent"><option value="All">{t('allPrograms')}</option>{programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
               <select value={departmentFilter} onChange={e => setDepartmentFilter(e.target.value)} className="w-full border border-brand-border dark:border-dark-brand-border rounded-lg bg-transparent"><option value="All">{t('allDepartments')}</option>{departments.map(d => <option key={d.id} value={d.id}>{d.name[lang]}</option>)}</select>

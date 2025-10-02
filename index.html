@@ -1,168 +1,123 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AccreditEx - Healthcare Accreditation Management</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AccreditEx</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M12 2L2 7V17L12 22L22 17V7L12 2Z' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M2 7L12 12L22 7' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12 22V12' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="manifest" href="/manifest.json">
+    
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "recharts": "https://aistudiocdn.com/recharts@^3.2.1",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0",
+    "zustand": "https://aistudiocdn.com/zustand@^5.0.8",
+    "cobe": "https://aistudiocdn.com/cobe@^0.6.5",
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^11.3.19",
+    "use-debounce": "https://aistudiocdn.com/use-debounce@^10.0.6"
+  }
+}
+</script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-      @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
-      
-      :root {
-        --brand-primary-color: #4f46e5;
-      }
-
-      .prose {
-        line-height: 1.7;
-      }
-      .prose p { margin-top: 1.25em; margin-bottom: 1.25em; }
-      .prose h1, .prose h2, .prose h3, .prose h4 { margin-top: 1.5em; margin-bottom: 0.75em; line-height: 1.3; }
-      .prose ul, .prose ol { margin-top: 1.25em; margin-bottom: 1.25em; padding-left: 1.75em; }
-      .prose li { margin-top: 0.5em; margin-bottom: 0.5em; }
-
-      .prose.dark-prose {
-        color: #f8fafc; /* dark-brand-text-primary */
-      }
-      .prose.dark-prose h1, .prose.dark-prose h2, .prose.dark-prose h3, .prose.dark-prose h4, .prose.dark-prose strong {
-        color: #f8fafc;
-      }
-      
-      .dot-grid {
-        background-image: radial-gradient(circle, #e2e8f0 1px, rgba(0, 0, 0, 0) 1px);
-        background-size: 20px 20px;
-      }
-      .dark .dot-grid {
-        background-image: radial-gradient(circle, #334155 1px, rgba(0, 0, 0, 0) 1px);
-        background-size: 20px 20px;
-      }
-
-      /* Animations & Transitions */
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes scaleIn {
-        from { transform: scale(0.95); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
-      }
-      
-      .page-enter-active {
-        animation: fadeInUp 0.3s ease-out forwards;
-      }
-      
-      .modal-enter {
-        animation: fadeIn 0.2s ease-out forwards;
-      }
-
-      .modal-content-enter {
-        animation: scaleIn 0.2s ease-out forwards;
-      }
-      
-      /* Enhanced Button Interactions */
-      button {
-        transition: transform 0.1s ease-out, box-shadow 0.2s ease;
-      }
-      button:active {
-        transform: scale(0.97);
-      }
-      .dark button:focus-visible, button:focus-visible {
-        outline: 2px solid var(--brand-primary-color);
-        outline-offset: 2px;
-      }
-      
-      /* Custom Scrollbar Styles */
-      /* For Firefox */
-      html {
-        scrollbar-width: thin;
-        scrollbar-color: #94a3b8 #e2e8f0; /* thumb track (slate-400, slate-200) */
-      }
-      .dark html {
-        scrollbar-color: #475569 #1e293b; /* thumb track (slate-600, slate-800) */
-      }
-      
-      /* For Webkit browsers (Chrome, Safari, Edge) */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background-color: #f1f5f9; /* slate-100 */
-      }
-      ::-webkit-scrollbar-thumb {
-        background-color: #94a3b8; /* slate-400 */
-        border-radius: 10px;
-      }
-       ::-webkit-scrollbar-thumb:hover {
-        background-color: #64748b; /* slate-500 */
-      }
-      
-      /* Dark mode scrollbar styles for Webkit */
-      .dark ::-webkit-scrollbar-track {
-        background-color: #0f172a; /* slate-900 */
-      }
-      .dark ::-webkit-scrollbar-thumb {
-        background-color: #475569; /* slate-600 */
-      }
-      .dark ::-webkit-scrollbar-thumb:hover {
-        background-color: #64748b; /* slate-500 */
-      }
-    </style>
     <script>
       tailwind.config = {
         darkMode: 'class',
         theme: {
           extend: {
-            fontFamily: {
-              sans: ['Inter', 'Tajawal', 'sans-serif'],
-            },
             colors: {
-              'brand-primary': {
-                DEFAULT: 'var(--brand-primary-color)', '50': '#eef2ff', '100': '#e0e7ff', '200': '#c7d2fe', '300': '#a5b4fc', '400': '#818cf8', '500': '#6366f1', '600': 'var(--brand-primary-color)', '700': '#4338ca', '800': '#3730a3', '900': '#312e81',
-              },
-              'brand-success': '#22C55E', // Green
-              'brand-warning': '#F97316', // Orange
-              'brand-danger': '#EF4444', // Red
-              // Light theme using Slate
-              'brand-background': '#f8fafc', // slate-50
-              'brand-surface': '#ffffff', // white
-              'brand-text-primary': '#0f172a', // slate-900
-              'brand-text-secondary': '#64748b', // slate-500
-              'brand-border': '#e2e8f0', // slate-200
-              // Dark theme using Slate
-              'dark-brand-background': '#020617', // slate-950
-              'dark-brand-surface': '#0f172a', // slate-900
-              'dark-brand-text-primary': '#f8fafc', // slate-50
-              'dark-brand-text-secondary': '#94a3b8', // slate-400
-              'dark-brand-border': '#1e293b', // slate-800
-            },
-          },
-        },
+              'brand-primary': 'var(--brand-primary-color, #4f46e5)',
+              'brand-surface': 'var(--color-surface, #ffffff)',
+              'brand-background': 'var(--color-background, #f8fafc)',
+              'brand-border': 'var(--color-border, #e2e8f0)',
+              'brand-text-primary': 'var(--color-text-primary, #0f172a)',
+              'brand-text-secondary': 'var(--color-text-secondary, #64748b)',
+              'brand-success': '#22c55e',
+              'brand-warning': '#f97316',
+              'dark-brand-surface': 'var(--dark-color-surface, #1e293b)',
+              'dark-brand-background': 'var(--dark-color-background, #020617)',
+              'dark-brand-border': 'var(--dark-color-border, #334155)',
+              'dark-brand-text-primary': 'var(--dark-color-text-primary, #e2e8f0)',
+              'dark-brand-text-secondary': 'var(--dark-color-text-secondary, #94a3b8)',
+            }
+          }
+        }
       }
     </script>
-  <script type="importmap">
-{
-  "imports": {
-    "@google/genai": "https://esm.sh/@google/genai",
-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "react": "https://esm.sh/react@18.2.0",
-    "recharts": "https://esm.sh/recharts@2.12.7",
-    "zustand": "https://esm.sh/zustand@4.5.2",
-    "@/": "./",
-    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
-    "react/": "https://esm.sh/react@18.2.0/"
-  }
-}
-</script>
+    <style>
+      :root {
+        --brand-primary-color: #4f46e5;
+        --color-surface: #ffffff;
+        --color-background: #f8fafc;
+        --color-border: #e2e8f0;
+        --color-text-primary: #0f172a;
+        --color-text-secondary: #64748b;
+
+        /* Dark mode colors */
+        --dark-color-surface: #1e293b;
+        --dark-color-background: #020617;
+        --dark-color-border: #334155;
+        --dark-color-text-primary: #e2e8f0;
+        --dark-color-text-secondary: #94a3b8;
+      }
+      .dark {
+        --color-surface: var(--dark-color-surface);
+        --color-background: var(--dark-color-background);
+        --color-border: var(--dark-color-border);
+        --color-text-primary: var(--dark-color-text-primary);
+        --color-text-secondary: var(--dark-color-text-secondary);
+      }
+      body {
+        background-color: var(--color-background);
+        color: var(--color-text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      .dark body {
+        background-color: var(--dark-color-background);
+        color: var(--dark-color-text-primary);
+      }
+      /* Simple CSS for Collapsible Trigger Icon */
+      [data-state='open'] > .collapsible-chevron {
+        transform: rotate(180deg);
+      }
+      .collapsible-chevron {
+        transition: transform 0.2s ease-in-out;
+      }
+
+      /* Simple animations */
+      @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+      .modal-enter { animation: fadeIn 0.2s ease-out; }
+      .modal-content-enter { animation: scaleIn 0.2s ease-out; }
+      .page-enter-active { animation: fadeInUp 0.3s ease-out; }
+      .dot-grid { background-image: radial-gradient(circle at 1px 1px, #cbd5e1 1px, transparent 0); background-size: 20px 20px; }
+      .dark .dot-grid { background-image: radial-gradient(circle at 1px 1px, #475569 1px, transparent 0); }
+      .dark-prose { color: #d1d5db; }
+      .dark-prose h1, .dark-prose h2, .dark-prose h3, .dark-prose h4 { color: #f9fafb; }
+      .dark-prose a { color: #818cf8; }
+      .dark-prose strong { color: #f9fafb; }
+      .dark-prose blockquote { border-color: #4b5563; color: #d1d5db; }
+    </style>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-brand-background font-sans dark:bg-dark-brand-background">
+<body>
     <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
+    <script type="module" src="index.tsx"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+    </script>
+<script type="module" src="/index.tsx"></script>
 </body>
 </html>

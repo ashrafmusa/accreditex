@@ -1,9 +1,12 @@
 
+
+
 import React, { useState } from 'react';
-import { TrainingProgram, User, NavigationState } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useTheme } from '@/components/common/ThemeProvider';
-import { useAppStore } from '@/stores/useAppStore';
+// FIX: Corrected import path for types
+import { TrainingProgram, User, NavigationState } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import { useTheme } from '../components/common/ThemeProvider';
+import { useAppStore } from '../stores/useAppStore';
 
 interface TrainingDetailPageProps {
   trainingProgram: TrainingProgram;

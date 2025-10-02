@@ -124,8 +124,6 @@ AI-powered features are provided by the Google Gemini API.
 -   All API calls are centralized in `services/ai.ts`.
 -   The application requires a valid Google Gemini API key to be available in the execution environment.
 -   **API Key Configuration**: The API key **must** be available as `process.env.API_KEY`. The application is designed to use this key automatically without any user input.
-## Integration with Diffrent HIS systems 
-
 
 ## Getting Started
 
@@ -135,12 +133,6 @@ The application is designed to run without a build step.
 2.  Open the `index.html` file in your browser.
 3.  The application will initialize and load the necessary data. If it's the first time, it will seed the database from `data/db.json`.
 
-## Licensing
-
-AccreditEx is dual-licensed.
-
-* **GNU AGPL-3.0:** This license is suitable for open-source projects and non-commercial use. It requires that any derived work, especially if used as a network service, must also be open-source.
-
-* **Commercial License:** For organizations that need to use AccreditEx in a proprietary, closed-source application, a separate commercial license is available. This license removes the obligations of the AGPL.
-
-For commercial inquiries and to purchase a license, please contact us at: **ashraf.a.m.ishag@gmail.com**
+**Demo Credentials:**
+-   **Email**: `e.reed@healthcare.com`
+-   **Password**: `password123`

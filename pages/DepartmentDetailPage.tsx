@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Department, User, Project, UserRole, ChecklistItem, ComplianceStatus, NavigationState } from '@/types';
+// FIX: Corrected import path for types
+import { Department, User, Project, UserRole, ChecklistItem, ComplianceStatus, NavigationState } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { BuildingOffice2Icon, PencilIcon, TrashIcon, UsersIcon, ClipboardDocumentCheckIcon } from '../components/icons';
 import StatCard from '../components/common/StatCard';

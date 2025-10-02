@@ -1,7 +1,5 @@
-
-
 import React, { useState, useEffect, FC } from 'react';
-import { Risk, User, TrainingProgram } from '@/types';
+import { Risk, User, TrainingProgram } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface RiskModalProps {

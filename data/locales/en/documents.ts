@@ -18,6 +18,8 @@ export const en = {
     improveWriting: 'Improve Writing',
     translate: 'Translate',
     errorGeneratingContent: 'An error occurred while generating content. Please try again.',
+    versionHistory: 'Version History',
+    newVersionPrompt: 'Saving this approved document will create a new draft version. Do you want to proceed?',
     // Document Control Hub
     documentType: 'Document Type',
     reviewDate: 'Review Date',
@@ -46,4 +48,8 @@ export const en = {
     endNode: 'End Node',
     editNode: 'Edit Node',
     connect: 'Connect',
+    linkedItems: 'Linked Items',
+    linkedChecklistItems: 'Linked Checklist Items',
+    linkedCapaReports: 'Linked CAPA Reports',
+    noLinkedItems: 'No items are linked to this process step.',
 };

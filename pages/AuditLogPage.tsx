@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ActivityLogItem } from '@/types';
+import { ActivityLogItem } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { SearchIcon } from '../components/icons';
 

@@ -1,6 +1,7 @@
 
+
 import React, { useMemo } from 'react';
-import { Project, MockSurvey, User, NavigationState } from '@/types';
+import { Project, MockSurvey, User, NavigationState } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { CheckCircleIcon, XCircleIcon, MinusCircleIcon } from '../components/icons';

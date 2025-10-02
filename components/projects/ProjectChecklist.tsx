@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Project, User, ChecklistItem, AppDocument, Department, Standard, ComplianceStatus } from '@/types';
-import ChecklistItemComponent from '@/components/projects/ChecklistItemComponent';
-import { useTranslation } from '@/hooks/useTranslation';
-import { SearchIcon, ChevronDownIcon } from '@/components/icons';
+// FIX: Corrected import path for types
+import { Project, User, ChecklistItem, AppDocument, Department, Standard, ComplianceStatus } from '../../types';
+import ChecklistItemComponent from './ChecklistItemComponent';
+import { useTranslation } from '../../hooks/useTranslation';
+import { SearchIcon, ChevronDownIcon } from '../icons';
 
 interface ProjectChecklistProps {
   project: Project;
@@ -154,7 +155,8 @@ const ProjectChecklist: React.FC<ProjectChecklistProps> = ({ project, users, doc
       if (!acc[parentId]) {
         acc[parentId] = [];
       }
-      acc[parentId].push(item);
+      // FIX: Ensure acc[parentId] is treated as an array. The initial value is correctly typed.
+      (acc[parentId] as ChecklistItem[]).push(item);
       return acc;
     }, {} as Record<string, ChecklistItem[]>);
   }, [filteredChecklist, subStandardToParentMap]);
@@ -173,7 +175,8 @@ const ProjectChecklist: React.FC<ProjectChecklistProps> = ({ project, users, doc
               </div>
               <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className={`${selectClasses} w-full sm:w-auto`}>
                 <option value="All">{t('allStatuses')}</option>
-                {Object.values(ComplianceStatus).map(s => <option key={s} value={s}>{t(s.charAt(0).toLowerCase() + s.slice(1).replace(/\s/g, '') as any)}</option>)}
+                {/* FIX: Correctly type the translation key */}
+                {Object.values(ComplianceStatus).map(s => <option key={s} value={s}>{t(s.charAt(0).toLowerCase() + s.slice(1).replace(/\s/g, '') as keyof typeof t)}</option>)}
               </select>
               <select value={userFilter} onChange={e => setUserFilter(e.target.value)} className={`${selectClasses} w-full sm:w-auto`}>
                 <option value="All">{t('allUsers')}</option>{users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}

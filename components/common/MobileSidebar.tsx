@@ -1,8 +1,10 @@
 import React from 'react';
-import { NavigationState, SettingsSection, UserRole } from '@/types';
-import { ChartPieIcon, FolderIcon, LogoIcon, BuildingOffice2Icon, Cog6ToothIcon, AcademicCapIcon, ClipboardDocumentCheckIcon, XMarkIcon, ChartBarSquareIcon, CalendarDaysIcon, ExclamationTriangleIcon, UsersIcon, ShieldCheckIcon, DocumentTextIcon, LightBulbIcon } from '@/components/icons';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useUserStore } from '@/stores/useUserStore';
+// FIX: Corrected import path for types
+import { NavigationState, SettingsSection, UserRole } from '../../types';
+import { ChartPieIcon, FolderIcon, LogoIcon, BuildingOffice2Icon, Cog6ToothIcon, AcademicCapIcon, ClipboardDocumentCheckIcon, XMarkIcon, ChartBarSquareIcon, CalendarDaysIcon, ExclamationTriangleIcon, UsersIcon, ShieldCheckIcon, DocumentTextIcon, LightBulbIcon, CircleStackIcon, ClipboardDocumentSearchIcon } from '../icons';
+import { useTranslation } from '../../hooks/useTranslation';
+import { useUserStore } from '../../stores/useUserStore';
+import { useAppStore } from '../../stores/useAppStore';
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -25,6 +27,7 @@ interface NavItemType {
 const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, setIsOpen, setNavigation, navigation, isProjectsActive, isSettingsActive }) => {
   const { t, dir } = useTranslation();
   const currentUser = useUserStore(state => state.currentUser);
+  const appSettings = useAppStore(state => state.appSettings);
   const currentView = navigation.view;
 
   const allNavItems: NavItemType[] = [
@@ -36,6 +39,8 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, setIsOpen, setNav
     { nav: { view: 'documentControl' }, key: 'documentControl', label: t('documentControl'), icon: DocumentTextIcon },
     { nav: { view: 'myTasks' }, key: 'myTasks', label: t('myTasks'), icon: ClipboardDocumentCheckIcon },
     { nav: { view: 'risk' }, key: 'risk', label: t('riskHub'), icon: ExclamationTriangleIcon },
+    { nav: { view: 'auditHub' }, key: 'auditHub', label: t('auditHub'), icon: ClipboardDocumentSearchIcon, adminOnly: true },
+    { nav: { view: 'dataHub' }, key: 'dataHub', label: t('dataHub'), icon: CircleStackIcon, adminOnly: true },
     { nav: { view: 'departments' }, key: 'departments', label: t('departments'), icon: BuildingOffice2Icon, adminOnly: true },
     { nav: { view: 'trainingHub' }, key: 'trainingHub', label: t('trainingHub'), icon: AcademicCapIcon },
     { nav: { view: 'settings' }, key: 'settings', label: t('settings'), icon: Cog6ToothIcon, adminOnly: true, bottom: true },
@@ -73,12 +78,16 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, setIsOpen, setNav
       <div className={`fixed inset-y-0 ${dir === 'ltr' ? 'left-0' : 'right-0'} w-64 bg-brand-text-primary text-white transform transition-transform z-40 sm:hidden ${isOpen ? 'translate-x-0' : (dir === 'ltr' ? '-translate-x-full' : 'translate-x-full')}`}>
         <div className="flex items-center justify-between h-20 px-4 border-b border-white/10">
           <div className="flex items-center">
-            <LogoIcon className="h-8 w-8" />
+            {appSettings?.logoUrl ? (
+              <img src={appSettings.logoUrl} alt="App Logo" className="h-8 w-8" />
+            ) : (
+              <LogoIcon className="h-8 w-8" />
+            )}
             <h1 className="text-2xl font-bold mx-3"><span className="text-gray-100">Accredit</span><span className="text-brand-primary">Ex</span></h1>
           </div>
           <button onClick={() => setIsOpen(false)}><XMarkIcon className="h-6 w-6" /></button>
         </div>
-        <nav className="flex-1 px-4 py-6 flex flex-col justify-between">
+        <nav className="flex-1 px-4 py-6 flex flex-col justify-between h-[calc(100%-5rem)]">
           <ul>
             {mainItems.map((item) => (
               <li key={item.key}>

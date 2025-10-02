@@ -1,7 +1,8 @@
 import React from 'react';
-import { CertificateData } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { LogoIcon } from '@/components/icons';
+// FIX: Corrected import path for types
+import { CertificateData } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import { LogoIcon } from '../components/icons';
 
 interface CertificatePageProps {
   certificate: CertificateData;

@@ -1,10 +1,12 @@
 
 
+
 import React, { useMemo } from 'react';
-import { Project, ComplianceStatus } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { CheckCircleIcon, ClockIcon, FolderIcon } from '@/components/icons';
-import StatCard from '@/components/common/StatCard';
+// FIX: Corrected import path for types
+import { Project, ComplianceStatus } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import { CheckCircleIcon, ClockIcon, FolderIcon } from '../components/icons';
+import StatCard from '../components/common/StatCard';
 
 interface ProjectOverviewProps {
   project: Project;

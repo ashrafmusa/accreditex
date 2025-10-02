@@ -1,3 +1,4 @@
+
 export const ar = {
     // General
     cancel: 'إلغاء',
@@ -16,6 +17,8 @@ export const ar = {
     password: 'كلمة المرور',
     loginButton: 'تسجيل الدخول',
     invalidCredentials: 'البريد الإلكتروني أو كلمة المرور غير صالحة.',
+    rememberMe: 'تذكرني',
+    forgotPassword: 'هل نسيت كلمة المرور؟',
     // Sidebar & Header Titles
     dashboard: 'لوحة التحكم',
     analytics: 'التحليلات',
@@ -24,6 +27,7 @@ export const ar = {
     calendar: 'التقويم',
     myTasks: 'مهامي',
     riskHub: 'مركز المخاطر',
+    auditHub: 'مركز التدقيق',
     userManagement: 'إدارة المستخدمين',
     standardsLibrary: 'مكتبة المعايير',
     accreditationHub: 'مركز الاعتماد',
@@ -51,4 +55,12 @@ export const ar = {
     riskHubTitle: 'مركز المخاطر والتواصل',
     departmentsHub: 'مركز الأقسام',
     documentControlHubDescription: 'مستودع مركزي للمستندات الخاضعة للرقابة.',
+    // New
+    dashboardNotAvailable: 'لوحة التحكم غير متاحة لدورك.',
+    security: 'الأمان',
+    // Offline Mode
+    offline: 'غير متصل',
+    offlineMessage: 'أنت غير متصل. سيتم حفظ التغييرات ومزامنتها عند إعادة الاتصال.',
+    onlineMessage: 'لقد عدت متصلاً. جاري مزامنة التغييرات...',
+    syncSuccessMessage: 'تمت مزامنة التغييرات التي أجريتها دون اتصال بنجاح!',
 };

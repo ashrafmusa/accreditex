@@ -1,5 +1,5 @@
 import React from 'react';
-import { Risk } from '@/types';
+import { Risk } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface RiskMatrixProps {

@@ -1,8 +1,9 @@
 
 
 import React, { useState, useEffect, FC } from 'react';
-import { UserCompetency, Competency, AppDocument } from '@/types';
+import { UserCompetency, Competency, AppDocument } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
+import DatePicker from '../ui/DatePicker';
 
 interface UserCompetencyModalProps {
   isOpen: boolean;
@@ -18,20 +19,20 @@ const UserCompetencyModal: FC<UserCompetencyModalProps> = ({ isOpen, onClose, on
   const isEditMode = !!existingUserCompetency;
 
   const [competencyId, setCompetencyId] = useState('');
-  const [issueDate, setIssueDate] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
+  const [issueDate, setIssueDate] = useState<Date | undefined>();
+  const [expiryDate, setExpiryDate] = useState<Date | undefined>();
   const [evidenceDocumentId, setEvidenceDocumentId] = useState('');
 
   useEffect(() => {
     if (existingUserCompetency) {
       setCompetencyId(existingUserCompetency.competencyId);
-      setIssueDate(existingUserCompetency.issueDate);
-      setExpiryDate(existingUserCompetency.expiryDate || '');
+      setIssueDate(new Date(existingUserCompetency.issueDate));
+      setExpiryDate(existingUserCompetency.expiryDate ? new Date(existingUserCompetency.expiryDate) : undefined);
       setEvidenceDocumentId(existingUserCompetency.evidenceDocumentId || '');
     } else {
         setCompetencyId('');
-        setIssueDate('');
-        setExpiryDate('');
+        setIssueDate(undefined);
+        setExpiryDate(undefined);
         setEvidenceDocumentId('');
     }
   }, [existingUserCompetency, isOpen]);
@@ -42,15 +43,14 @@ const UserCompetencyModal: FC<UserCompetencyModalProps> = ({ isOpen, onClose, on
     
     onSave({
       competencyId,
-      issueDate,
-      expiryDate: expiryDate || undefined,
+      issueDate: issueDate.toISOString().split('T')[0],
+      expiryDate: expiryDate ? expiryDate.toISOString().split('T')[0] : undefined,
       evidenceDocumentId: evidenceDocumentId || undefined,
     });
   };
 
   if (!isOpen) return null;
 
-  const inputClasses = "mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white";
   const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300";
 
   return (
@@ -62,7 +62,7 @@ const UserCompetencyModal: FC<UserCompetencyModalProps> = ({ isOpen, onClose, on
             <div className="mt-4 space-y-4">
               <div>
                 <label htmlFor="competency" className={labelClasses}>{t('competency')}</label>
-                <select id="competency" value={competencyId} onChange={e => setCompetencyId(e.target.value)} className={inputClasses} required disabled={isEditMode}>
+                <select id="competency" value={competencyId} onChange={e => setCompetencyId(e.target.value)} className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white" required disabled={isEditMode}>
                   <option value="">{t('selectCompetency')}</option>
                   {competencies.map(c => <option key={c.id} value={c.id}>{c.name[lang]}</option>)}
                 </select>
@@ -70,16 +70,16 @@ const UserCompetencyModal: FC<UserCompetencyModalProps> = ({ isOpen, onClose, on
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="issueDate" className={labelClasses}>{t('issueDate')}</label>
-                  <input type="date" id="issueDate" value={issueDate} onChange={e => setIssueDate(e.target.value)} className={inputClasses} required />
+                  <DatePicker date={issueDate} setDate={setIssueDate} />
                 </div>
                 <div>
                   <label htmlFor="expiryDate" className={labelClasses}>{t('expiryDate')}</label>
-                  <input type="date" id="expiryDate" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} min={issueDate} className={inputClasses} />
+                  <DatePicker date={expiryDate} setDate={setExpiryDate} fromDate={issueDate} />
                 </div>
               </div>
               <div>
                 <label htmlFor="evidence" className={labelClasses}>{t('evidence')}</label>
-                <select id="evidence" value={evidenceDocumentId} onChange={e => setEvidenceDocumentId(e.target.value)} className={inputClasses}>
+                <select id="evidence" value={evidenceDocumentId} onChange={e => setEvidenceDocumentId(e.target.value)} className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white">
                   <option value="">{t('selectEvidence')}</option>
                   {documents.map(d => <option key={d.id} value={d.id}>{d.name[lang]}</option>)}
                 </select>

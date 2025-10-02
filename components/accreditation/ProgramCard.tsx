@@ -1,5 +1,5 @@
 import React from 'react';
-import { AccreditationProgram } from '@/types';
+import { AccreditationProgram } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 import { PencilIcon, TrashIcon } from '../icons';
 

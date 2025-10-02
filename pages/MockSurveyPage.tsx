@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Project, MockSurvey, User, MockSurveyResult, NavigationState } from '@/types';
+// FIX: Corrected import path for types
+import { Project, MockSurvey, User, MockSurveyResult, NavigationState } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { CheckCircleIcon, XCircleIcon, MinusCircleIcon } from '../components/icons';
 
@@ -12,7 +13,7 @@ interface MockSurveyPageProps {
   setNavigation: (state: NavigationState) => void;
 }
 
-const MockSurveyPage: React.FC<MockSurveyPageProps> = ({ project, survey, users, onUpdateSurvey, onSaveAndExit }) => {
+const MockSurveyPage: React.FC<MockSurveyPageProps> = ({ project, survey, users, onUpdateSurvey, onSaveAndExit, setNavigation }) => {
   const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<MockSurveyResult[]>(survey.results);
@@ -23,6 +24,7 @@ const MockSurveyPage: React.FC<MockSurveyPageProps> = ({ project, survey, users,
 
   const handleSaveAndExit = () => {
     onSaveAndExit(project.id, { ...survey, results });
+    setNavigation({ view: 'projectDetail', projectId: project.id });
   };
 
   const updateResult = (result: 'Pass' | 'Fail' | 'Not Applicable', notes?: string) => {
@@ -50,6 +52,7 @@ const MockSurveyPage: React.FC<MockSurveyPageProps> = ({ project, survey, users,
   const handleFinalize = () => {
     if (window.confirm(t('areYouSureFinalize'))) {
         onUpdateSurvey(project.id, { ...survey, results, status: 'Completed' });
+        setNavigation({ view: 'surveyReport', projectId: project.id, surveyId: survey.id });
     }
   };
   
@@ -63,72 +66,63 @@ const MockSurveyPage: React.FC<MockSurveyPageProps> = ({ project, survey, users,
   const progressPercentage = ((currentIndex + 1) / project.checklist.length) * 100;
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
-      <header className="bg-brand-surface dark:bg-dark-brand-surface p-4 shadow-md">
-        <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-3">
-                <div>
-                    <h1 className="text-xl font-bold text-brand-text-primary dark:text-dark-brand-text-primary">{project.name}</h1>
-                    <p className="text-sm text-brand-text-secondary dark:text-dark-brand-text-secondary">{t('mockSurvey')}</p>
-                </div>
-                <button onClick={handleSaveAndExit} className="text-sm font-semibold text-brand-primary hover:underline">{t('saveAndExit')}</button>
-            </div>
-             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                <div className="bg-brand-primary h-2.5 rounded-full" style={{ width: `${progressPercentage}%` }}></div>
-            </div>
-            <p className="text-xs text-brand-text-secondary dark:text-dark-brand-text-secondary text-center mt-1">
-                {t('surveyProgress').replace('{current}', (currentIndex + 1).toString()).replace('{total}', project.checklist.length.toString())}
-            </p>
-        </div>
-      </header>
-      
-      <main className="flex-grow flex flex-col justify-center items-center p-4 md:p-8">
-        <div className="bg-brand-surface dark:bg-dark-brand-surface rounded-xl shadow-2xl w-full max-w-3xl">
-          <div className="p-8">
-            <p className="text-sm font-semibold text-brand-primary">{currentChecklistItem.standardId}</p>
-            <p className="mt-2 text-xl text-brand-text-primary dark:text-dark-brand-text-primary">{currentChecklistItem.item}</p>
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 flex flex-col">
+      <header className="bg-white dark:bg-dark-brand-surface p-4 flex justify-between items-center shadow-md">
+          <div>
+            <h1 className="font-bold text-lg">{t('mockSurvey')}: {project.name}</h1>
+            <p className="text-sm text-gray-500">{t('surveyProgress').replace('{current}', String(currentIndex + 1)).replace('{total}', String(project.checklist.length))}</p>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-900/50 p-6 space-y-4">
-            <div className="border-b dark:border-dark-brand-border pb-4 mb-4">
-                <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('originalItemDetails')}</h4>
-                <div className="mt-2 text-sm text-gray-800 dark:text-gray-200 space-y-1">
-                    <p><strong className="font-medium text-gray-600 dark:text-gray-400">{t('assignedTo')}:</strong> {assignedUser ? assignedUser.name : t('unassigned')}</p>
-                    <p><strong className="font-medium text-gray-600 dark:text-gray-400">{t('notes')}:</strong> {currentChecklistItem.notes || 'N/A'}</p>
-                </div>
-            </div>
+          <button onClick={handleSaveAndExit} className="text-sm font-semibold text-brand-primary">{t('saveAndExit')}</button>
+      </header>
+
+      <div className="w-full bg-gray-200 dark:bg-gray-700 h-1">
+        <div className="bg-brand-primary h-1" style={{ width: `${progressPercentage}%` }}></div>
+      </div>
+
+      <main className="flex-grow p-4 sm:p-8 flex justify-center items-center">
+        <div className="w-full max-w-3xl bg-white dark:bg-dark-brand-surface rounded-xl shadow-lg p-8 space-y-6">
+          <div>
+            <p className="text-sm font-semibold text-brand-primary">{currentChecklistItem.standardId}</p>
+            <p className="text-xl font-semibold mt-1">{currentChecklistItem.item}</p>
+          </div>
+
+          <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+            <h3 className="text-sm font-medium text-gray-500">{t('originalItemDetails')}</h3>
+            <p className="text-sm mt-1"><strong>{t('status')}:</strong> {currentChecklistItem.status}</p>
+            <p className="text-sm mt-1"><strong>{t('assignedTo')}:</strong> {assignedUser?.name || t('unassigned')}</p>
+            {currentChecklistItem.actionPlan && <p className="text-sm mt-1"><strong>{t('actionPlan')}:</strong> {currentChecklistItem.actionPlan}</p>}
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Evaluation</h3>
             <div className="flex gap-4">
-                <button 
-                    onClick={() => updateResult('Pass')}
-                    className={`${resultButtonClass(currentResult.result === 'Pass')} border-green-500 hover:bg-green-500 hover:text-white ${currentResult.result === 'Pass' ? 'bg-green-500' : 'text-green-500'}`}
-                ><CheckCircleIcon className="w-5 h-5" /> {t('pass')}</button>
-                <button 
-                    onClick={() => updateResult('Fail')}
-                    className={`${resultButtonClass(currentResult.result === 'Fail')} border-red-500 hover:bg-red-500 hover:text-white ${currentResult.result === 'Fail' ? 'bg-red-500' : 'text-red-500'}`}
-                ><XCircleIcon className="w-5 h-5" /> {t('fail')}</button>
-                <button 
-                    onClick={() => updateResult('Not Applicable')}
-                    className={`${resultButtonClass(currentResult.result === 'Not Applicable')} border-gray-400 hover:bg-gray-400 hover:text-white ${currentResult.result === 'Not Applicable' ? 'bg-gray-400' : 'text-gray-400'}`}
-                ><MinusCircleIcon className="w-5 h-5" /> {t('notApplicable')}</button>
+                <button onClick={() => updateResult('Pass')} className={`${resultButtonClass(currentResult.result === 'Pass')} bg-green-500 border-green-600`}><CheckCircleIcon className="w-5 h-5"/> {t('pass')}</button>
+                <button onClick={() => updateResult('Fail')} className={`${resultButtonClass(currentResult.result === 'Fail')} bg-red-500 border-red-600`}><XCircleIcon className="w-5 h-5"/> {t('fail')}</button>
+                <button onClick={() => updateResult('Not Applicable')} className={`${resultButtonClass(currentResult.result === 'Not Applicable')} bg-gray-500 border-gray-600`}><MinusCircleIcon className="w-5 h-5"/> {t('notApplicable')}</button>
             </div>
-             <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">{t('surveyorNotes')}</label>
-                <textarea 
-                    value={currentResult.notes}
-                    onChange={(e) => updateResult(currentResult.result, e.target.value)}
-                    rows={4}
-                    className="w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm sm:text-sm bg-white dark:bg-gray-700 dark:text-white"
-                />
-            </div>
+          </div>
+          
+          <div>
+            <label htmlFor="notes" className="text-sm font-medium">{t('surveyorNotes')}</label>
+            <textarea
+              id="notes"
+              rows={3}
+              value={currentResult.notes}
+              onChange={(e) => updateResult(currentResult.result, e.target.value)}
+              className="mt-1 w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-600"
+            />
           </div>
         </div>
       </main>
 
-      <footer className="bg-brand-surface dark:bg-dark-brand-surface p-4 flex justify-between items-center shadow-[0_-2px_5px_rgba(0,0,0,0.1)]">
-        <button onClick={goToPrev} disabled={currentIndex === 0} className="px-6 py-2 rounded-lg font-semibold disabled:opacity-50 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">{t('previous')}</button>
+      <footer className="bg-white dark:bg-dark-brand-surface p-4 flex justify-between items-center shadow-inner">
+        <button onClick={goToPrev} disabled={currentIndex === 0} className="px-4 py-2 text-sm font-semibold rounded-lg disabled:opacity-50">« {t('previous')}</button>
         {currentIndex === project.checklist.length - 1 ? (
-             <button onClick={handleFinalize} className="px-6 py-2 rounded-lg font-semibold bg-brand-success text-white hover:bg-green-700">{t('finalizeSurvey')}</button>
+          <button onClick={handleFinalize} className="px-6 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700">
+            {t('finalizeSurvey')}
+          </button>
         ) : (
-            <button onClick={goToNext} className="px-6 py-2 rounded-lg font-semibold bg-brand-primary text-white hover:bg-indigo-700">{t('next')}</button>
+          <button onClick={goToNext} disabled={currentIndex === project.checklist.length - 1} className="px-4 py-2 text-sm font-semibold rounded-lg disabled:opacity-50">{t('next')} »</button>
         )}
       </footer>
     </div>

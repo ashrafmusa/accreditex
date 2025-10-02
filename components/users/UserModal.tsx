@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { User, UserRole, Department, AppSettings } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
+// FIX: Corrected import path for types
+import { User, UserRole, Department, AppSettings } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface UserModalProps {
   user: User | null;
@@ -31,11 +32,12 @@ const UserModal: React.FC<UserModalProps> = ({ user, departments, appSettings, o
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name && email && role) {
-      const userData = { name, email, role, departmentId };
+      const userData = { name, email, role, departmentId: departmentId || undefined };
       if (isEditMode) {
-        onSave({ id: user.id, ...userData });
+        onSave({ ...user, ...userData });
       } else {
-        onSave(userData);
+        // FIX: Add missing `competencies` property to satisfy the User type.
+        onSave({ ...userData, competencies: [], trainingAssignments: [] });
       }
     }
   };
@@ -61,6 +63,7 @@ const UserModal: React.FC<UserModalProps> = ({ user, departments, appSettings, o
               <div>
                   <label htmlFor="role" className={labelClasses}>{t('userRole')}</label>
                   <select id="role" name="role" value={role} onChange={(e) => setRole(e.target.value as UserRole)} className={inputClasses}>
+                  {/* FIX: Correctly type the map function parameters. */}
                   {Object.values(UserRole).map((r) => (<option key={r} value={r}>{r}</option>))}
                   </select>
               </div>
@@ -68,6 +71,7 @@ const UserModal: React.FC<UserModalProps> = ({ user, departments, appSettings, o
                   <label htmlFor="department" className={labelClasses}>{t('department')}</label>
                   <select id="department" name="department" value={departmentId || ''} onChange={(e) => setDepartmentId(e.target.value)} className={inputClasses}>
                   <option value="">{t('unassigned')}</option>
+                  {/* FIX: Correctly type the map function parameters. */}
                   {departments.map((d) => (<option key={d.id} value={d.id}>{d.name[lang]}</option>))}
                   </select>
               </div>

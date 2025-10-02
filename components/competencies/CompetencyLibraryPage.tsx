@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Competency } from '@/types';
+import { Competency } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 import { PlusIcon, IdentificationIcon, PencilIcon, TrashIcon } from '../icons';
 import CompetencyModal from './CompetencyModal';

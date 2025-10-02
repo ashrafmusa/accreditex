@@ -1,5 +1,5 @@
 import React from 'react';
-import { Project, User, UserRole, ProjectStatus, ComplianceStatus } from '@/types';
+import { Project, User, UserRole, ProjectStatus, ComplianceStatus } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 import { PencilIcon, TrashIcon, ExclamationTriangleIcon, ClipboardDocumentCheckIcon } from '../icons';
 

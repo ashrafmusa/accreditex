@@ -135,4 +135,9 @@ export const en = {
     notStarted: 'Not Started',
     onHold: 'On Hold',
     finalized: 'Finalized',
+    inProgress: 'In Progress',
+    completed: 'Completed',
+    // User Profile
+    projectInvolvement: 'Project Involvement',
+    noProjectsAssigned: 'This user is not assigned to any projects.',
 };

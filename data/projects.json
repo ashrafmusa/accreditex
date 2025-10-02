@@ -12,7 +12,6 @@
       "email": "m.thorne@healthcare.com",
       "role": "Project Lead"
     },
-    "progress": 0,
     "activityLog": [
       {
         "id": "log-6-1",
@@ -62,7 +61,6 @@
       "email": "m.thorne@healthcare.com",
       "role": "Project Lead"
     },
-    "progress": 0,
     "activityLog": [
       {
         "id": "log-5-1",
@@ -134,7 +132,6 @@
       "email": "m.thorne@healthcare.com",
       "role": "Project Lead"
     },
-    "progress": 0,
     "activityLog": [
       {
         "id": "log-1-1",
@@ -206,7 +203,6 @@
       "email": "m.thorne@healthcare.com",
       "role": "Project Lead"
     },
-    "progress": 0,
     "finalizedBy": "Dr. Evelyn Reed",
     "finalizationDate": "2024-05-01T10:00:00Z",
     "activityLog": [
@@ -258,7 +254,6 @@
       "email": "e.reed@healthcare.com",
       "role": "Admin"
     },
-    "progress": 0,
     "activityLog": [
       {
         "id": "log-4-1",
@@ -308,7 +303,6 @@
       "email": "m.thorne@healthcare.com",
       "role": "Project Lead"
     },
-    "progress": 0,
     "activityLog": [
       {
         "id": "log-3-1",

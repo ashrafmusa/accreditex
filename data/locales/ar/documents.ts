@@ -18,6 +18,8 @@ export const ar = {
     improveWriting: 'تحسين الكتابة',
     translate: 'ترجمة',
     errorGeneratingContent: 'حدث خطأ أثناء إنشاء المحتوى. يرجى المحاولة مرة أخرى.',
+    versionHistory: 'سجل الإصدارات',
+    newVersionPrompt: 'سيؤدي حفظ هذا المستند المعتمد إلى إنشاء إصدار مسودة جديد. هل تريد المتابعة؟',
     // Document Control Hub
     documentType: 'نوع المستند',
     reviewDate: 'تاريخ المراجعة',
@@ -46,4 +48,8 @@ export const ar = {
     endNode: 'عقدة النهاية',
     editNode: 'تعديل العقدة',
     connect: 'توصيل',
+    linkedItems: 'العناصر المرتبطة',
+    linkedChecklistItems: 'عناصر قائمة المراجعة المرتبطة',
+    linkedCapaReports: 'تقارير CAPA المرتبطة',
+    noLinkedItems: 'لا توجد عناصر مرتبطة بهذه الخطوة من العملية.',
 };

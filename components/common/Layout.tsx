@@ -1,16 +1,15 @@
-
-
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/common/Header';
-import { NavigationState, Notification } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import MobileSidebar from '@/components/common/MobileSidebar';
-import NavigationRail from '@/components/common/NavigationRail';
-import CommandPalette from '@/components/common/CommandPalette';
-import { backendService } from '@/services/BackendService';
-import { useUserStore } from '@/stores/useUserStore';
-import { useProjectStore } from '@/stores/useProjectStore';
-import { useAppStore } from '@/stores/useAppStore';
+import Header from './Header';
+// FIX: Corrected import path for types
+import { NavigationState, Notification } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
+import MobileSidebar from './MobileSidebar';
+import NavigationRail from './NavigationRail';
+import CommandPalette from './CommandPalette';
+import { backendService } from '../../services/BackendService';
+import { useUserStore } from '../../stores/useUserStore';
+import { useProjectStore } from '../../stores/useProjectStore';
+import { useAppStore } from '../../stores/useAppStore';
 
 interface LayoutProps {
   navigation: NavigationState;
@@ -19,6 +18,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ navigation, setNavigation, children }) => {
+  console.log("DEBUG: Rendering Layout component");
   const { dir } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -29,21 +29,29 @@ const Layout: React.FC<LayoutProps> = ({ navigation, setNavigation, children }) 
   const projects = useProjectStore(state => state.projects);
   const logout = useUserStore(state => state.logout);
   const users = useUserStore(state => state.users);
-  const { documents, standards, accreditationPrograms } = useAppStore(state => ({
-    documents: state.documents,
-    standards: state.standards,
-    accreditationPrograms: state.accreditationPrograms,
-  }));
+  
+  // FIX: Split combined selector to prevent unnecessary re-renders from new object references.
+  const documents = useAppStore(state => state.documents);
+  const standards = useAppStore(state => state.standards);
+  const accreditationPrograms = useAppStore(state => state.accreditationPrograms);
+
 
   useEffect(() => {
+    console.log("DEBUG: Running fetchNotifications useEffect in Layout");
     const fetchNotifications = () => {
         const userNotifications = backendService.getNotifications(currentUser.id);
-        setNotifications(userNotifications);
+        // FIX: Only set state if notifications have actually changed to prevent re-renders every 5s.
+        setNotifications(prevNotifications => {
+          if (JSON.stringify(prevNotifications) !== JSON.stringify(userNotifications)) {
+            return userNotifications;
+          }
+          return prevNotifications;
+        });
     };
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 5000);
     return () => clearInterval(interval);
-  }, [currentUser]);
+  }, [currentUser.id]);
 
   const handleMarkAsRead = (notificationId: string | 'all') => {
     if (notificationId === 'all') {
@@ -55,7 +63,6 @@ const Layout: React.FC<LayoutProps> = ({ navigation, setNavigation, children }) 
     setNotifications(userNotifications);
   };
 
-  // FIX: Define isProjectsActive and isSettingsActive to pass to the MobileSidebar component.
   const isProjectsActive = ['projects', 'projectDetail', 'createProject', 'editProject'].includes(navigation.view);
   const isSettingsActive = navigation.view === 'settings';
 
@@ -98,7 +105,7 @@ const Layout: React.FC<LayoutProps> = ({ navigation, setNavigation, children }) 
             onLogout={logout}
             onMarkAsRead={handleMarkAsRead}
           />
-          <main key={JSON.stringify(navigation)} className={`flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-brand-background dark:bg-dark-brand-background page-enter-active transition-all duration-300 ${isNavExpanded ? 'sm:ml-64' : 'sm:ml-20'}`}>
+          <main className={`flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-brand-background dark:bg-dark-brand-background page-enter-active transition-all duration-300 ${isNavExpanded ? 'sm:ml-64' : 'sm:ml-20'}`}>
             <div className="max-w-7xl mx-auto">
                 {children}
             </div>

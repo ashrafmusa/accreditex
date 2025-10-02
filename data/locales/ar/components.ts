@@ -22,4 +22,23 @@ export const ar = {
     newTaskAssignment: 'مهمة جديدة: تم تعيينك لمهمة "{task}" في مشروع "{project}".',
     documentReviewUpcoming: 'مراجعة مستند: المستند "{document}" يستحق المراجعة قريبًا.',
     capaOverdue: 'تأخير CAPA: الإجراء التصحيحي للمعيار "{standard}" في مشروع "{project}" متأخر.',
+    // Data Integration
+    linkLiveData: 'ربط بيانات حية',
+    linkedDataSources: 'مصادر البيانات المرتبطة',
+    syncWithHris: 'مزامنة مع نظام معلومات الموارد البشرية',
+    syncing: 'جاري المزامنة...',
+    syncSuccess: 'تمت مزامنة الكفاءات بنجاح!',
+    liveDataTooltip: 'يمكن ربط هذا المقياس بمصدر بيانات مباشر (مثل FHIR) للحصول على تحديثات في الوقت الفعلي.',
+    dataHub: 'مركز البيانات',
+    dataHubDescription: 'تنظيم تدفق البيانات وإدارة تكامل الأنظمة.',
+    integrationStrategy: 'استراتيجية التكامل',
+    integrationStrategyDescription: 'تم تصميم AccreditEx بنهج يعتمد على واجهة برمجة التطبيقات أولاً والمعايير لضمان التكامل السلس في نظام معلومات المستشفى الحالي لديك. نحن نستفيد من المعايير الحديثة مثل FHIR لتقليل إدخال البيانات يدويًا وتوفير رؤى في الوقت الفعلي.',
+    fhirFoundation: 'أساس FHIR',
+    fhirFoundationDescription: 'منصتنا تتحدث اللغة العالمية لبيانات الرعاية الصحية الحديثة: FHIR (موارد التشغيل البيني السريع للرعاية الصحية). وهذا يسمح لـ AccreditEx بالاتصال بأي نظام LIS أو HIS أو مستودع بيانات متوافق مع FHIR، مما يخلق مصدرًا واحدًا للحقيقة لأدلة الامتثال.',
+    exampleResource: 'مثال على مورد FHIR:',
+    apiArchitecture: 'بنية قائمة على واجهة برمجة التطبيقات',
+    apiArchitectureDescription: 'يكشف AccreditEx عن واجهة برمجة تطبيقات RESTful آمنة وموثقة جيدًا. يمكن لقسم تكنولوجيا المعلومات في المستشفى الخاص بك استخدام محرك تكامل قياسي (مثل Mirth Connect أو Rhapsody) لتحويل البيانات من الأنظمة الداخلية إلى تنسيق FHIR ودفعها مباشرة إلى منصتنا، مما يضمن سلامة البيانات وأمانها.',
+    exampleApiCall: 'مثال على استدعاء API:',
+    // Date Picker
+    selectDate: 'اختر تاريخًا',
 };

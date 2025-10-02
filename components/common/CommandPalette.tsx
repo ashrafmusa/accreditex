@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, FC, Fragment } from 'react';
-import { Project, User, AppDocument, Standard, AccreditationProgram, NavigationState } from '@/types';
+import { Project, User, AppDocument, Standard, AccreditationProgram, NavigationState } from '../types';
 import { useTranslation } from '../../hooks/useTranslation';
 import { MagnifyingGlassIcon } from '../icons';
 

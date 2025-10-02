@@ -1,8 +1,8 @@
-
 import React, { useMemo } from 'react';
-import { Project, User, AccreditationProgram, ComplianceStatus } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { UsersIcon, CheckCircleIcon, ClockIcon } from '@/components/icons';
+// FIX: Corrected import path for types
+import { Project, User, AccreditationProgram, ComplianceStatus } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import { UsersIcon, CheckCircleIcon, ClockIcon } from '../components/icons';
 
 interface MyTasksPageProps {
   projects: Project[];

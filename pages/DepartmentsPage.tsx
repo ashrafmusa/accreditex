@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Department, User, UserRole, Project, NavigationState, ChecklistItem, ComplianceStatus } from '@/types';
+// FIX: Corrected import path for types
+import { Department, User, UserRole, Project, NavigationState, ChecklistItem, ComplianceStatus } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { BuildingOffice2Icon, PlusIcon, UsersIcon, ClipboardDocumentCheckIcon, FolderIcon } from '../components/icons';
 import DepartmentCard from '../components/departments/DepartmentCard';
 import DepartmentModal from '../components/departments/DepartmentModal';
 import EmptyState from '../components/common/EmptyState';
-import StatCard from '@/components/common/StatCard';
+import StatCard from '../components/common/StatCard';
 
 interface DepartmentsPageProps {
   departments: Department[];

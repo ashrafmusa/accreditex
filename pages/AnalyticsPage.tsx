@@ -1,15 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { Project, User, Department, AccreditationProgram, Standard, ComplianceStatus } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { ChartBarSquareIcon, CheckCircleIcon, ExclamationTriangleIcon, AcademicCapIcon, BookOpenIcon } from '@/components/icons';
-import DepartmentalPerformanceChart from '@/components/analytics/DepartmentalPerformanceChart';
-import ComplianceOverTimeChart from '@/components/analytics/ComplianceOverTimeChart';
-import CapaStatusChart from '@/components/analytics/CapaStatusChart';
-import ProblematicStandardsTable from '@/components/analytics/ProblematicStandardsTable';
-import StatCard from '@/components/common/StatCard';
-import { useProjectStore } from '@/stores/useProjectStore';
-import { useUserStore } from '@/stores/useUserStore';
-import { useAppStore } from '@/stores/useAppStore';
+import { Project, User, Department, AccreditationProgram, Standard, ComplianceStatus } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import { ChartBarSquareIcon, CheckCircleIcon, ExclamationTriangleIcon, AcademicCapIcon, BookOpenIcon } from '../components/icons';
+import DepartmentalPerformanceChart from '../components/analytics/DepartmentalPerformanceChart';
+import ComplianceOverTimeChart from '../components/analytics/ComplianceOverTimeChart';
+import CapaStatusChart from '../components/analytics/CapaStatusChart';
+import ProblematicStandardsTable from '../components/analytics/ProblematicStandardsTable';
+import StatCard from '../components/common/StatCard';
+import { useProjectStore } from '../stores/useProjectStore';
+import { useUserStore } from '../stores/useUserStore';
+import { useAppStore } from '../stores/useAppStore';
 
 const AnalyticsPage: React.FC = () => {
   const { t, lang } = useTranslation();
@@ -34,14 +34,16 @@ const AnalyticsPage: React.FC = () => {
     }
     
     let projectChecklistItems = filteredProjects.flatMap(p => p.checklist);
+    let filteredUsers = users;
     if (departmentFilter !== 'all') {
       const userIdsInDept = new Set(users.filter(u => u.departmentId === departmentFilter).map(u => u.id));
       const relevantProjectIds = new Set(filteredProjects.filter(p => p.checklist.some(item => item.assignedTo && userIdsInDept.has(item.assignedTo))).map(p => p.id));
       filteredProjects = filteredProjects.filter(p => relevantProjectIds.has(p.id));
       projectChecklistItems = filteredProjects.flatMap(p => p.checklist).filter(item => item.assignedTo && userIdsInDept.has(item.assignedTo));
+      filteredUsers = users.filter(u => u.departmentId === departmentFilter);
     }
     
-    return { projects: filteredProjects, checklistItems: projectChecklistItems };
+    return { projects: filteredProjects, checklistItems: projectChecklistItems, users: filteredUsers };
   }, [projects, users, dateFilter, programFilter, departmentFilter]);
 
   const kpis = useMemo(() => {
@@ -107,7 +109,7 @@ const AnalyticsPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DepartmentalPerformanceChart projects={projects} departments={departments} users={users} />
+        <DepartmentalPerformanceChart projects={filteredData.projects} departments={departmentFilter === 'all' ? departments : departments.filter(d => d.id === departmentFilter)} users={filteredData.users} />
         <CapaStatusChart projects={filteredData.projects} />
         <ComplianceOverTimeChart projects={filteredData.projects} />
       </div>

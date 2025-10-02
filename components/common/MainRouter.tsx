@@ -5,6 +5,7 @@ import AnalyticsPage from '../../pages/AnalyticsPage';
 import QualityInsightsPage from '../../pages/QualityInsightsPage';
 import CalendarPage from '../../pages/CalendarPage';
 import RiskHubPage from '../../pages/RiskHubPage';
+import AuditHubPage from '../../pages/AuditHubPage';
 import DocumentControlHubPage from '../../pages/DocumentControlHubPage';
 import ProjectListPage from '../../pages/ProjectListPage';
 import ProjectDetailPage from '../../pages/ProjectDetailPage';
@@ -20,6 +21,7 @@ import TrainingDetailPage from '../../pages/TrainingDetailPage';
 import CertificatePage from '../../pages/CertificatePage';
 import MockSurveyPage from '../../pages/MockSurveyPage';
 import SurveyReportPage from '../../pages/SurveyReportPage';
+import DataHubPage from '../../pages/DataHubPage';
 import { useProjectStore } from '../../stores/useProjectStore';
 import { useUserStore } from '../../stores/useUserStore';
 import { useAppStore } from '../../stores/useAppStore';
@@ -44,7 +46,7 @@ const MainRouter: React.FC<MainRouterProps> = ({ navigation, setNavigation }) =>
     // Role-based Access Control
     useEffect(() => {
         if (currentUser && currentUser.role !== UserRole.Admin) {
-            const adminOnlyViews: NavigationState['view'][] = ['settings', 'departments', 'departmentDetail'];
+            const adminOnlyViews: NavigationState['view'][] = ['settings', 'departments', 'departmentDetail', 'auditHub'];
             if (adminOnlyViews.includes(navigation.view)) {
                 // Redirect non-admins from admin pages to the dashboard
                 setNavigation({ view: 'dashboard' });
@@ -102,6 +104,8 @@ const MainRouter: React.FC<MainRouterProps> = ({ navigation, setNavigation }) =>
         return <CalendarPage setNavigation={setNavigation} />;
       case 'risk':
         return <RiskHubPage setNavigation={setNavigation} />;
+      case 'auditHub':
+        return <AuditHubPage setNavigation={setNavigation} />;
       case 'documentControl':
         return <DocumentControlHubPage documents={documents} standards={standards} currentUser={currentUser} onUpdateDocument={updateDocument} onCreateDocument={addControlledDocument} onAddProcessMap={addProcessMap} onDeleteDocument={deleteDocument} onApproveDocument={approveDocument} />;
       case 'projects':
@@ -180,6 +184,8 @@ const MainRouter: React.FC<MainRouterProps> = ({ navigation, setNavigation }) =>
             setNavigation={setNavigation}
         />;
       }
+      case 'dataHub':
+        return <DataHubPage />;
       default:
         return <DashboardPage setNavigation={setNavigation} />;
     }

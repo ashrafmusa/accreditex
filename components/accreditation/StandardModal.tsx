@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Standard, SubStandard } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { PlusIcon, TrashIcon } from '@/components/icons';
+// FIX: Corrected import path for types
+import { Standard, SubStandard, StandardCriticality } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
+import { PlusIcon, TrashIcon } from '../icons';
 
 interface StandardModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ const StandardModal: React.FC<StandardModalProps> = ({ isOpen, onClose, onSave, 
   const [standardId, setStandardId] = useState('');
   const [description, setDescription] = useState('');
   const [section, setSection] = useState('');
+  const [criticality, setCriticality] = useState<StandardCriticality>(StandardCriticality.Medium);
   const [totalMeasures, setTotalMeasures] = useState<number | undefined>(undefined);
   const [subStandards, setSubStandards] = useState<SubStandard[]>([]);
 
@@ -27,6 +29,7 @@ const StandardModal: React.FC<StandardModalProps> = ({ isOpen, onClose, onSave, 
       setStandardId(existingStandard.standardId);
       setDescription(existingStandard.description);
       setSection(existingStandard.section || '');
+      setCriticality(existingStandard.criticality || StandardCriticality.Medium);
       setTotalMeasures(existingStandard.totalMeasures);
       setSubStandards(existingStandard.subStandards || []);
     } else {
@@ -34,6 +37,7 @@ const StandardModal: React.FC<StandardModalProps> = ({ isOpen, onClose, onSave, 
       setStandardId('');
       setDescription('');
       setSection('');
+      setCriticality(StandardCriticality.Medium);
       setTotalMeasures(undefined);
       setSubStandards([]);
     }
@@ -62,6 +66,7 @@ const StandardModal: React.FC<StandardModalProps> = ({ isOpen, onClose, onSave, 
       programId,
       description,
       section,
+      criticality,
       totalMeasures: totalMeasures || subStandards.length || undefined,
       subStandards: subStandards.length > 0 ? subStandards : undefined,
     });
@@ -94,9 +99,19 @@ const StandardModal: React.FC<StandardModalProps> = ({ isOpen, onClose, onSave, 
               <label htmlFor="description" className={labelClasses}>{t('standardDescription')}</label>
               <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={inputClasses} required />
             </div>
-            <div>
-                <label htmlFor="totalMeasures" className={labelClasses}>{t('totalMeasures')}</label>
-                <input type="number" id="totalMeasures" value={totalMeasures || ''} onChange={(e) => setTotalMeasures(parseInt(e.target.value) || undefined)} className={inputClasses} placeholder="Optional, calculated if empty" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label htmlFor="totalMeasures" className={labelClasses}>{t('totalMeasures')}</label>
+                    <input type="number" id="totalMeasures" value={totalMeasures || ''} onChange={(e) => setTotalMeasures(parseInt(e.target.value) || undefined)} className={inputClasses} placeholder="Optional, calculated if empty" />
+                </div>
+                <div>
+                    <label htmlFor="criticality" className={labelClasses}>{t('criticality')}</label>
+                    <select id="criticality" value={criticality} onChange={e => setCriticality(e.target.value as StandardCriticality)} className={inputClasses}>
+                        <option value={StandardCriticality.Low}>{t('low')}</option>
+                        <option value={StandardCriticality.Medium}>{t('medium')}</option>
+                        <option value={StandardCriticality.High}>{t('high')}</option>
+                    </select>
+                </div>
             </div>
             <div className='border-t dark:border-dark-brand-border pt-4'>
                 <h4 className='font-medium mb-2'>{t('measuresSubStandards')}</h4>

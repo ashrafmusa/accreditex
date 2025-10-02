@@ -1,5 +1,5 @@
 import React, { useState, useMemo, FC } from 'react';
-import { Project, AppDocument, CustomCalendarEvent, NavigationState, Language, CAPAReport } from '@/types';
+import { Project, AppDocument, CustomCalendarEvent, NavigationState, Language, CAPAReport } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { CalendarDaysIcon, PlusIcon } from '../components/icons';
 import EventModal from '../components/calendar/EventModal';
@@ -37,6 +37,7 @@ const CalendarPage: FC<CalendarPageProps> = ({ setNavigation }) => {
   const [editingEvent, setEditingEvent] = useState<CustomCalendarEvent | null>(null);
   
   const projects = useProjectStore(state => state.projects);
+  // FIX: Destructure the newly added methods from the App store.
   const { documents, customEvents, addCustomEvent, updateCustomEvent, deleteCustomEvent } = useAppStore();
 
   const [filters, setFilters] = useState<Record<CalendarEventType, boolean>>({

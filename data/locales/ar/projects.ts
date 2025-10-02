@@ -135,4 +135,9 @@ export const ar = {
     notStarted: 'لم يبدأ',
     onHold: 'معلق',
     finalized: 'منتهى',
+    inProgress: 'قيد التنفيذ',
+    completed: 'مكتمل',
+    // User Profile
+    projectInvolvement: 'المشاركة في المشاريع',
+    noProjectsAssigned: 'هذا المستخدم غير معين لأي مشاريع.',
 };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Standard } from '@/types';
+import { Standard } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ChevronDownIcon, PencilIcon, TrashIcon } from '../icons';
 

@@ -1,141 +1,202 @@
-import React, { useState, FormEvent } from "react";
-import { User } from "@/types";
-import { useTranslation } from "@/hooks/useTranslation";
+import React, { useState } from "react";
+import { User } from "../types";
+import { useTranslation } from "../hooks/useTranslation";
 import {
-  LogoIcon,
   EyeIcon,
   EyeSlashIcon,
+  LogoIcon,
+  ExclamationTriangleIcon,
   SpinnerIcon,
-} from "@/components/icons";
-import { useToast } from "@/hooks/useToast";
-import { useUserStore } from "@/stores/useUserStore";
+} from "../components/icons";
+import { useUserStore } from "../stores/useUserStore";
+import { useAppStore } from "../stores/useAppStore";
+import Globe from "../components/ui/Globe";
 
 interface LoginPageProps {
   onLogin: (user: User) => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
-  const { t } = useTranslation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const { t, dir } = useTranslation();
+  const [email, setEmail] = useState("e.reed@healthcare.com");
+  const [password, setPassword] = useState("password123");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const toast = useToast();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const login = useUserStore((state) => state.login);
+  const appSettings = useAppStore((state) => state.appSettings);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError("");
-
-    setTimeout(async () => {
+    setLoading(true);
+    try {
       const user = await login(email, password);
       if (user) {
         onLogin(user);
       } else {
         setError(t("invalidCredentials"));
-        toast.error(t("invalidCredentials"));
       }
-      setIsLoading(false);
-    }, 500);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDemoLogin = () => {
-    setEmail("e.reed@healthcare.com");
-    setPassword("password123");
-  };
+  if (!appSettings) {
+    return null; // Or a loading state
+  }
+
+  const globeSettings = appSettings.globeSettings;
+  const userLocation = { lat: 24.7136, long: 46.6753 }; // Riyadh, Saudi Arabia
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 overflow-hidden relative bg-gradient-to-br from-slate-950 to-slate-800">
-      <div className="w-full max-w-sm relative z-10">
-        <div className="text-center mb-8">
-          <LogoIcon className="h-12 w-12 mx-auto" />
-          <h1 className="text-3xl font-bold mt-4">
-            <span className="text-slate-100">Accredit</span>
-            <span className="text-brand-primary">Ex</span>
-          </h1>
-        </div>
-        <div className="bg-dark-brand-surface/50 border border-dark-brand-border rounded-xl shadow-2xl backdrop-blur-sm">
-          <div className="p-8">
-            <h2 className="text-xl font-semibold text-center text-slate-100">
-              {t("login")}
-            </h2>
-            <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-slate-50 dark:bg-slate-900">
+      {/* Left Side: Form */}
+      <div className="flex flex-col justify-center items-center p-8 relative z-10">
+        <div className="w-full max-w-sm">
+          <div className="bg-brand-surface dark:bg-dark-brand-surface p-10 rounded-2xl shadow-2xl border border-brand-border dark:border-dark-brand-border animate-[fadeInUp_0.5s_ease-out]">
+            <div className="flex flex-col items-center text-center gap-3 mb-8 animate-[scaleIn_0.5s_ease-out]">
+              {appSettings?.logoUrl ? (
+                <img
+                  src={appSettings.logoUrl}
+                  alt="App Logo"
+                  className="h-12 w-12"
+                />
+              ) : (
+                <LogoIcon className="h-12 w-12 text-brand-primary" />
+              )}
+              <h1 className="text-3xl font-bold">
+                <span className="text-brand-text-primary dark:text-dark-brand-text-primary">
+                  Accredit
+                </span>
+                <span className="text-brand-primary">Ex</span>
+              </h1>
+            </div>
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-6"
+              dir={dir}
+              aria-describedby={error ? "login-error" : undefined}
+            >
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-slate-400"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   {t("emailAddress")}
                 </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-slate-700 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-slate-800 text-slate-100"
-                />
+                <div className="mt-1">
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    autoFocus
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-800 dark:text-white"
+                  />
+                </div>
               </div>
-              <div className="relative">
+
+              <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-slate-400"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   {t("password")}
                 </label>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-slate-700 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-slate-800 text-slate-100"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-sm leading-5"
-                >
-                  {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+                <div className="mt-1 relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-800 dark:text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 text-brand-primary focus:ring-brand-primary border-gray-300 rounded"
+                  />
+                  <label
+                    htmlFor="remember-me"
+                    className="ml-2 block text-sm text-gray-900 dark:text-gray-200"
+                  >
+                    {t("rememberMe")}
+                  </label>
+                </div>
+                <div className="text-sm">
+                  <a
+                    href="#"
+                    className="font-medium text-brand-primary hover:text-indigo-500"
+                  >
+                    {t("forgotPassword")}
+                  </a>
+                </div>
+              </div>
+
               {error && (
-                <p className="text-xs text-red-500 text-center animate-[fadeIn_0.3s_ease-out]">
-                  {error}
-                </p>
+                <div
+                  id="login-error"
+                  role="alert"
+                  className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-3 flex items-center gap-3 animate-[fadeIn_0.3s_ease-out]"
+                >
+                  <ExclamationTriangleIcon className="h-5 w-5 text-red-600 dark:text-red-300" />
+                  <p className="text-sm text-red-700 dark:text-red-200">
+                    {error}
+                  </p>
+                </div>
               )}
+
               <div>
                 <button
                   type="submit"
-                  disabled={isLoading}
-                  className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 transition-colors"
+                  disabled={loading}
+                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary disabled:bg-indigo-400"
                 >
-                  {isLoading && (
+                  {loading ? (
                     <SpinnerIcon className="animate-spin h-5 w-5 text-white" />
+                  ) : (
+                    t("loginButton")
                   )}
-                  {isLoading ? "..." : t("loginButton")}
                 </button>
               </div>
             </form>
           </div>
         </div>
-        <div className="mt-4 text-center">
-          <button
-            onClick={handleDemoLogin}
-            className="text-xs text-indigo-400 hover:text-indigo-300 hover:underline"
-          >
-            Use Demo Credentials
-          </button>
+      </div>
+
+      {/* Right Side: Globe */}
+      <div className="hidden lg:flex relative items-center justify-center p-8 dot-grid overflow-hidden">
+        <div className="w-[700px] h-[700px] max-w-full max-h-full">
+          <Globe
+            width={700}
+            height={700}
+            {...globeSettings}
+            userLocation={userLocation}
+          />
         </div>
       </div>
     </div>

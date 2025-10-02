@@ -1,8 +1,10 @@
 
+
 import React from 'react';
-import { ProjectDetailView } from '@/types';
-import { InformationCircleIcon, ClipboardDocumentListIcon, ArchiveBoxIcon, RectangleStackIcon, ClipboardDocumentSearchIcon, BeakerIcon } from '@/components/icons';
-import { useTranslation } from '@/hooks/useTranslation';
+// FIX: Corrected import path for types
+import { ProjectDetailView } from '../../types';
+import { InformationCircleIcon, ClipboardDocumentListIcon, ArchiveBoxIcon, RectangleStackIcon, ClipboardDocumentSearchIcon, BeakerIcon } from '../icons';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface ProjectDetailSidebarProps {
   activeView: ProjectDetailView;

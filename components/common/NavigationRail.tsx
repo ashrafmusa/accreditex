@@ -1,8 +1,9 @@
 import React from 'react';
-import { NavigationState, UserRole } from '@/types';
-import { ChartPieIcon, FolderIcon, LogoIcon, BuildingOffice2Icon, Cog6ToothIcon, AcademicCapIcon, ClipboardDocumentCheckIcon, ChartBarSquareIcon, CalendarDaysIcon, ExclamationTriangleIcon, UsersIcon, ShieldCheckIcon, DocumentTextIcon, LightBulbIcon } from '../icons';
+import { NavigationState, UserRole } from '../../types';
+import { ChartPieIcon, FolderIcon, LogoIcon, BuildingOffice2Icon, Cog6ToothIcon, AcademicCapIcon, ClipboardDocumentCheckIcon, ChartBarSquareIcon, CalendarDaysIcon, ExclamationTriangleIcon, UsersIcon, ShieldCheckIcon, DocumentTextIcon, LightBulbIcon, CircleStackIcon, ClipboardDocumentSearchIcon } from '../icons';
 import { useTranslation } from '../../hooks/useTranslation';
-import { useUserStore } from '@/stores/useUserStore';
+import { useUserStore } from '../../stores/useUserStore';
+import { useAppStore } from '../../stores/useAppStore';
 
 interface NavigationRailProps {
   setNavigation: (state: NavigationState) => void;
@@ -45,6 +46,7 @@ const NavItem: React.FC<{
 const NavigationRail: React.FC<NavigationRailProps> = ({ setNavigation, navigation, isExpanded, setIsExpanded }) => {
   const { t } = useTranslation();
   const currentUser = useUserStore(state => state.currentUser);
+  const appSettings = useAppStore(state => state.appSettings);
   const currentView = navigation.view;
   const isProjectsActive = navigation.view === 'projects' || navigation.view === 'projectDetail' || navigation.view === 'createProject';
 
@@ -57,6 +59,8 @@ const NavigationRail: React.FC<NavigationRailProps> = ({ setNavigation, navigati
     { nav: { view: 'documentControl' }, key: 'documentControl', label: t('documentControl'), icon: DocumentTextIcon },
     { nav: { view: 'myTasks' }, key: 'myTasks', label: t('myTasks'), icon: ClipboardDocumentCheckIcon },
     { nav: { view: 'risk' }, key: 'risk', label: t('riskHub'), icon: ExclamationTriangleIcon },
+    { nav: { view: 'auditHub' }, key: 'auditHub', label: t('auditHub'), icon: ClipboardDocumentSearchIcon, adminOnly: true },
+    { nav: { view: 'dataHub' }, key: 'dataHub', label: t('dataHub'), icon: CircleStackIcon, adminOnly: true },
     { nav: { view: 'departments' }, key: 'departments', label: t('departments'), icon: BuildingOffice2Icon, adminOnly: true },
     { nav: { view: 'trainingHub' }, key: 'trainingHub', label: t('trainingHub'), icon: AcademicCapIcon },
   ];
@@ -81,13 +85,17 @@ const NavigationRail: React.FC<NavigationRailProps> = ({ setNavigation, navigati
         onMouseLeave={() => setIsExpanded(false)}
     >
       <div className={`flex items-center justify-center h-16 mb-4 flex-shrink-0 ${isExpanded ? 'px-4' : ''}`}>
-        <LogoIcon className="h-8 w-8 flex-shrink-0" />
+        {appSettings?.logoUrl ? (
+          <img src={appSettings.logoUrl} alt="App Logo" className="h-8 w-8 flex-shrink-0" />
+        ) : (
+          <LogoIcon className="h-8 w-8 flex-shrink-0" />
+        )}
         <h1 className={`text-2xl font-bold transition-opacity duration-200 whitespace-nowrap ${isExpanded ? 'opacity-100 ltr:ml-3 rtl:mr-3' : 'opacity-0'}`}>
           <span className="text-brand-text-primary dark:text-dark-brand-text-primary">Accredit</span>
           <span className="text-brand-primary">Ex</span>
         </h1>
       </div>
-      <nav className="flex-1 px-3">
+      <nav className="flex-1 px-3 overflow-y-auto min-h-0">
         <ul className="space-y-2">
             {visibleNavItems.map((item) => (
             <NavItem

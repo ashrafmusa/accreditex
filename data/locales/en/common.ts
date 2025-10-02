@@ -1,3 +1,4 @@
+
 export const en = {
     // General
     cancel: 'Cancel',
@@ -16,6 +17,8 @@ export const en = {
     password: 'Password',
     loginButton: 'Log In',
     invalidCredentials: 'Invalid email or password.',
+    rememberMe: 'Remember me',
+    forgotPassword: 'Forgot password?',
     // Sidebar & Header Titles
     dashboard: 'Dashboard',
     analytics: 'Analytics',
@@ -24,6 +27,7 @@ export const en = {
     calendar: 'Calendar',
     myTasks: 'My Tasks',
     riskHub: 'Risk Hub',
+    auditHub: 'Audit Hub',
     userManagement: 'User Management',
     standardsLibrary: 'Standards Library',
     accreditationHub: 'Accreditation Hub',
@@ -51,4 +55,12 @@ export const en = {
     riskHubTitle: 'Risk & Communication Hub',
     departmentsHub: 'Departments Hub',
     documentControlHubDescription: 'Central repository for controlled documents.',
+    // New
+    dashboardNotAvailable: 'Dashboard not available for your role.',
+    security: 'Security',
+    // Offline Mode
+    offline: 'Offline',
+    offlineMessage: 'You are offline. Changes will be saved and synced when you reconnect.',
+    onlineMessage: 'You are back online. Syncing changes...',
+    syncSuccessMessage: 'Offline changes synced successfully!',
 };

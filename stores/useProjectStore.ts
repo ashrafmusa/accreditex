@@ -1,5 +1,6 @@
+
 import { create } from 'zustand';
-import { Project, CAPAReport, DesignControlItem, AppDocument, Comment, ComplianceStatus } from '@/types';
+import { Project, CAPAReport, DesignControlItem, AppDocument, Comment, ComplianceStatus } from '../types';
 import { backendService } from '../services/BackendService';
 import { useAppStore } from './useAppStore';
 import { useUserStore } from './useUserStore';
@@ -16,7 +17,7 @@ const calculateProgress = (checklist: Project['checklist']): number => {
       return acc;
   }, 0);
   
-  return parseFloat(((score / applicableItems.length) * 100).toFixed(1));
+  return (score / applicableItems.length) * 100;
 };
 
 

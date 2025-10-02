@@ -1,10 +1,13 @@
 
+
 import React, { useState, useMemo, useEffect } from 'react';
-import { Project, User, UserRole, NavigationState, AccreditationProgram } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useProjectStore } from '@/stores/useProjectStore';
-import { useUserStore } from '@/stores/useUserStore';
-import { useAppStore } from '@/stores/useAppStore';
+// FIX: Corrected import path for types
+import { Project, User, UserRole, NavigationState, AccreditationProgram } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import { useProjectStore } from '../stores/useProjectStore';
+import { useUserStore } from '../stores/useUserStore';
+import { useAppStore } from '../stores/useAppStore';
+import DatePicker from '../components/ui/DatePicker';
 
 interface CreateProjectPageProps {
   setNavigation: (state: NavigationState) => void;
@@ -23,8 +26,8 @@ const CreateProjectPage: React.FC<CreateProjectPageProps> = ({ setNavigation, na
 
   const [name, setName] = useState('');
   const [programId, setProgramId] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const [leadId, setLeadId] = useState('');
   const [description, setDescription] = useState('');
   
@@ -32,8 +35,8 @@ const CreateProjectPage: React.FC<CreateProjectPageProps> = ({ setNavigation, na
     if (isEditMode && projectToEdit) {
       setName(projectToEdit.name);
       setProgramId(projectToEdit.programId);
-      setStartDate(projectToEdit.startDate);
-      setEndDate(projectToEdit.endDate || '');
+      setStartDate(new Date(projectToEdit.startDate));
+      setEndDate(projectToEdit.endDate ? new Date(projectToEdit.endDate) : undefined);
       setLeadId(projectToEdit.projectLead.id);
       setDescription(projectToEdit.description || '');
     }
@@ -53,21 +56,28 @@ const CreateProjectPage: React.FC<CreateProjectPageProps> = ({ setNavigation, na
     if (isEditMode && projectToEdit) {
       const lead = users.find(u => u.id === leadId);
       if (!lead) return;
-      const updatedProjectData: Project = { ...projectToEdit, name, programId, startDate, endDate: endDate || null, description, projectLead: lead, };
+      const updatedProjectData: Project = { 
+          ...projectToEdit, 
+          name, 
+          programId, 
+          startDate: startDate.toISOString().split('T')[0], 
+          endDate: endDate ? endDate.toISOString().split('T')[0] : null, 
+          description, 
+          projectLead: lead, 
+      };
       updateProject(updatedProjectData);
     } else {
       addProject({
         name,
         programId,
-        startDate,
-        endDate: endDate || null,
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate ? endDate.toISOString().split('T')[0] : null,
         description,
         leadId: leadId,
       });
     }
   };
-
-  const inputClasses = "mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white";
+  
   const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300";
 
   return (
@@ -82,12 +92,12 @@ const CreateProjectPage: React.FC<CreateProjectPageProps> = ({ setNavigation, na
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
               <label htmlFor="projectName" className={labelClasses}>{t('projectName')}</label>
-              <input type="text" id="projectName" value={name} onChange={e => setName(e.target.value)} required className={inputClasses} />
+              <input type="text" id="projectName" value={name} onChange={e => setName(e.target.value)} required className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white" />
             </div>
 
             <div>
               <label htmlFor="program" className={labelClasses}>{t('accreditationProgram')}</label>
-              <select id="program" value={programId} onChange={e => setProgramId(e.target.value)} required className={inputClasses}>
+              <select id="program" value={programId} onChange={e => setProgramId(e.target.value)} required className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white">
                 <option value="">{t('selectAProgram')}</option>
                 {programs.map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
@@ -97,7 +107,7 @@ const CreateProjectPage: React.FC<CreateProjectPageProps> = ({ setNavigation, na
 
             <div>
               <label htmlFor="projectLead" className={labelClasses}>{t('projectLead')}</label>
-              <select id="projectLead" value={leadId} onChange={e => setLeadId(e.target.value)} required className={inputClasses}>
+              <select id="projectLead" value={leadId} onChange={e => setLeadId(e.target.value)} required className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white">
                 <option value="">{t('selectALead')}</option>
                 {projectLeads.map(user => (<option key={user.id} value={user.id}>{user.name}</option>))}
               </select>
@@ -105,17 +115,17 @@ const CreateProjectPage: React.FC<CreateProjectPageProps> = ({ setNavigation, na
 
             <div>
               <label htmlFor="startDate" className={labelClasses}>{t('startDate')}</label>
-              <input type="date" id="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} required className={inputClasses}/>
+              <DatePicker date={startDate} setDate={setStartDate} />
             </div>
 
             <div>
               <label htmlFor="endDate" className={labelClasses}>{t('endDateOptional')}</label>
-              <input type="date" id="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} min={startDate} className={inputClasses} />
+              <DatePicker date={endDate} setDate={setEndDate} fromDate={startDate} />
             </div>
             
             <div className="md:col-span-2">
               <label htmlFor="description" className={labelClasses}>{t('descriptionOptional')}</label>
-              <textarea id="description" rows={4} value={description} onChange={e => setDescription(e.target.value)} className={inputClasses} />
+              <textarea id="description" rows={4} value={description} onChange={e => setDescription(e.target.value)} className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white" />
             </div>
           </div>
         </div>

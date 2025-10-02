@@ -1,9 +1,11 @@
 
+
 import React, { useState } from 'react';
-import { AppDocument, Standard, User, UserRole } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import DocumentEditorModal from '@/components/documents/DocumentEditorModal';
-import SignatureModal from '@/components/common/SignatureModal';
+// FIX: Corrected import path for types
+import { AppDocument, Standard, User, UserRole } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import DocumentEditorModal from '../components/documents/DocumentEditorModal';
+import SignatureModal from '../components/common/SignatureModal';
 
 interface DocumentsPageProps {
   documents: AppDocument[];
@@ -81,8 +83,8 @@ const DocumentsPage: React.FC<DocumentsPageProps> = ({ documents, standards, pro
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[doc.status]}`}>
                       {doc.status}
                     </span>
-                    {doc.status === 'Approved' && doc.approvedBy && (
-                      <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">{t('signedBy').replace('{name}', doc.approvedBy).replace('{date}', new Date(doc.approvalDate!).toLocaleDateString())}</p>
+                    {doc.status === 'Approved' && doc.approvedBy && doc.approvalDate && (
+                      <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">{t('signedBy').replace('{name}', doc.approvedBy).replace('{date}', new Date(doc.approvalDate).toLocaleDateString())}</p>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">v{doc.currentVersion}</td>

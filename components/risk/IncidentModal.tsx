@@ -1,6 +1,7 @@
 import React, { useState, useEffect, FC } from 'react';
 import { IncidentReport } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
+import DatePicker from '../ui/DatePicker';
 
 interface IncidentModalProps {
   isOpen: boolean;
@@ -13,7 +14,7 @@ const IncidentModal: FC<IncidentModalProps> = ({ isOpen, onClose, onSave, existi
   const { t, dir } = useTranslation();
   const isEditMode = !!existingReport;
 
-  const [incidentDate, setIncidentDate] = useState('');
+  const [incidentDate, setIncidentDate] = useState<Date | undefined>(new Date());
   const [location, setLocation] = useState('');
   const [type, setType] = useState<IncidentReport['type']>('Patient Safety');
   const [severity, setSeverity] = useState<IncidentReport['severity']>('Minor');
@@ -22,14 +23,14 @@ const IncidentModal: FC<IncidentModalProps> = ({ isOpen, onClose, onSave, existi
   
   useEffect(() => {
     if (existingReport) {
-        setIncidentDate(existingReport.incidentDate);
+        setIncidentDate(new Date(existingReport.incidentDate));
         setLocation(existingReport.location);
         setType(existingReport.type);
         setSeverity(existingReport.severity);
         setDescription(existingReport.description);
         setStatus(existingReport.status);
     } else {
-        setIncidentDate(new Date().toISOString().split('T')[0]);
+        setIncidentDate(new Date());
         setLocation('');
         setType('Patient Safety');
         setSeverity('Minor');
@@ -43,7 +44,12 @@ const IncidentModal: FC<IncidentModalProps> = ({ isOpen, onClose, onSave, existi
     if (!incidentDate || !location || !description) return;
     
     const reportData = {
-        incidentDate, location, type, severity, description, status,
+        incidentDate: incidentDate.toISOString().split('T')[0], 
+        location, 
+        type, 
+        severity, 
+        description, 
+        status,
         reportedBy: '', // This will be set by the store/backend
         correctiveActionIds: existingReport?.correctiveActionIds || [],
     };
@@ -69,7 +75,10 @@ const IncidentModal: FC<IncidentModalProps> = ({ isOpen, onClose, onSave, existi
           </div>
           <div className="p-6 space-y-4 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div><label htmlFor="date" className={labelClasses}>{t('incidentDate')}</label><input type="date" value={incidentDate} onChange={e => setIncidentDate(e.target.value)} id="date" className={inputClasses} required /></div>
+                <div>
+                    <label htmlFor="date" className={labelClasses}>{t('incidentDate')}</label>
+                    <DatePicker date={incidentDate} setDate={setIncidentDate} />
+                </div>
                 <div><label htmlFor="location" className={labelClasses}>{t('location')}</label><input type="text" value={location} onChange={e => setLocation(e.target.value)} id="location" className={inputClasses} required /></div>
                 <div>
                     <label htmlFor="type" className={labelClasses}>{t('incidentType')}</label>

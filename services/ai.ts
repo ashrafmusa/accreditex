@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
-import { Standard, Language, AIQualityBriefing, Project, Risk, User, Department, Competency } from '@/types';
+import { Standard, Language, AIQualityBriefing, Project, Risk, User, Department, Competency } from '../types';
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = (window as any).electronAPI?.getApiKey();
 
 class AIService {
     private _ai: GoogleGenAI | null = null;
@@ -42,93 +42,69 @@ class AIService {
 
     async improveWriting(text: string, lang: Language): Promise<string> {
         if (!this._ai) throw new Error("AI Service not initialized.");
-        const prompt = `Improve the following text for clarity, conciseness, and professionalism, suitable for a formal healthcare policy document. Text: "${text}". Respond in ${lang === 'en' ? 'English' : 'Arabic'}.`;
+        const prompt = `Improve the following text for clarity, professionalism, and conciseness, while preserving its original meaning. Respond in ${lang === 'en' ? 'English' : 'Arabic'}. Text: "${text}"`;
         const response = await this._ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
         return response.text;
     }
 
-    async translateText(text: string, targetLang: Language): Promise<string> {
+    async translateText(text: string, lang: Language): Promise<string> {
         if (!this._ai) throw new Error("AI Service not initialized.");
-        const prompt = `Translate the following text to ${targetLang === 'en' ? 'English' : 'Arabic'}. Text: "${text}"`;
+        const targetLanguage = lang === 'en' ? 'Arabic' : 'English';
+        const prompt = `Translate the following text to ${targetLanguage}: "${text}"`;
         const response = await this._ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
         return response.text;
     }
-    
-    async generateQualityBriefing(
-      projects: Project[],
-      risks: Risk[],
-      users: User[],
-      departments: Department[],
-      competencies: Competency[]
-    ): Promise<AIQualityBriefing> {
-        if (!this._ai) {
-          throw new Error("AI Service not initialized.");
-        }
-    
-        const totalProjects = projects.length;
-        const avgCompliance = projects.length > 0 ? projects.reduce((acc, p) => acc + p.progress, 0) / projects.length : 0;
-        const openCapas = projects.flatMap(p => p.capaReports).filter(c => c.status === 'Open').length;
-        const closedCapas = projects.flatMap(p => p.capaReports).filter(c => c.status === 'Closed').length;
-        const highRisks = risks.filter(r => r.likelihood * r.impact >= 15 && r.status === 'Open').length;
+
+    async generateQualityBriefing(projects: Project[], risks: Risk[], users: User[], departments: Department[], competencies: Competency[]): Promise<AIQualityBriefing> {
+        if (!this._ai) throw new Error("AI Service not initialized.");
+
+        // Data summarization
+        const projectSummary = `There are ${projects.length} projects. Key projects include ${projects.slice(0, 2).map(p => p.name).join(', ')}. Overall compliance is around ${(projects.reduce((acc, p) => acc + p.progress, 0) / projects.length).toFixed(1)}%.`;
+        const riskSummary = `There are ${risks.length} open risks. High-impact risks include: ${risks.filter(r => r.impact >= 4).slice(0, 2).map(r => r.title).join(', ')}.`;
+
+        const prompt = `You are a healthcare quality management consultant. Based on the following summarized data, provide a concise executive briefing.
+        - Identify 2-3 key organizational strengths.
+        - Identify 2-3 primary areas for improvement or concern.
+        - Provide 2 actionable, high-level recommendations.
         
-        const rootCauseCounts = [...projects.flatMap(p => p.capaReports), ...risks]
-          .reduce((acc, issue) => {
-            if (issue.rootCauseCategory) {
-              acc[issue.rootCauseCategory] = (acc[issue.rootCauseCategory] || 0) + 1;
+        Data:
+        - ${projectSummary}
+        - ${riskSummary}
+        - Total departments: ${departments.length}.
+        - Total staff: ${users.length}.
+        
+        Format your response as a JSON object with keys "strengths" (array of strings), "concerns" (array of strings), and "recommendations" (array of objects with "title" and "details" string properties).`;
+
+        const responseSchema = {
+            type: Type.OBJECT,
+            properties: {
+                strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
+                concerns: { type: Type.ARRAY, items: { type: Type.STRING } },
+                recommendations: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            title: { type: Type.STRING },
+                            details: { type: Type.STRING }
+                        },
+                        propertyOrdering: ["title", "details"],
+                    }
+                }
             }
-            return acc;
-          }, {} as Record<string, number>);
-        
-        const competencyGaps = departments
-          .filter(d => d.requiredCompetencyIds?.length)
-          .flatMap(dept => {
-            const usersInDept = users.filter(u => u.departmentId === dept.id);
-            if (usersInDept.length === 0) return [];
-            return dept.requiredCompetencyIds!.map(reqCompId => {
-              const usersWithCompetency = usersInDept.filter(u => u.competencies?.some(c => c.competencyId === reqCompId)).length;
-              const gap = usersInDept.length - usersWithCompetency;
-              return { department: dept.name.en, gap };
-            });
-          }).filter(g => g.gap > 0);
-    
-        const dataSummary = `
-          - Total Projects: ${totalProjects}
-          - Average Project Compliance: ${avgCompliance.toFixed(1)}%
-          - Open CAPAs: ${openCapas}
-          - Closed CAPAs: ${closedCapas}
-          - High-Priority Open Risks: ${highRisks}
-          - Root Cause Frequencies: ${JSON.stringify(rootCauseCounts)}
-          - Competency Gaps: ${JSON.stringify(competencyGaps.slice(0, 3))}
-        `;
-    
-        const schema: any = {
-          type: Type.OBJECT,
-          properties: {
-            strengths: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 2-3 key strengths based on the data." },
-            concerns: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 2-3 primary areas of concern or potential risks." },
-            recommendations: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, details: { type: Type.STRING } }, propertyOrdering: ["title", "details"] }, description: "List of 3 concrete, actionable recommendations to improve quality and compliance." }
-          },
-          propertyOrdering: ["strengths", "concerns", "recommendations"],
         };
-    
-        const prompt = `
-          As a world-class healthcare quality management consultant, analyze the following summary of an organization's data.
-          Provide a high-level executive briefing in JSON format.
-          Focus on identifying patterns, highlighting significant risks, and offering actionable advice.
-          Be concise and professional.
-    
-          Data Summary:
-          ${dataSummary}
-        `;
-    
-        const response = await this._ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt, config: { responseMimeType: "application/json", responseSchema: schema } });
-        try {
-          return JSON.parse(response.text.trim()) as AIQualityBriefing;
-        } catch (e) {
-          console.error("Failed to parse AI JSON response:", e, "Raw response:", response.text);
-          throw new Error("Failed to get a valid briefing from the AI service.");
-        }
-      }
+
+        const response = await this._ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                responseMimeType: 'application/json',
+                responseSchema
+            }
+        });
+
+        return JSON.parse(response.text);
+    }
 }
 
 export const aiService = new AIService();

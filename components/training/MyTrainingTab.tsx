@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { TrainingProgram, UserTrainingStatus, User, NavigationState } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import TrainingCard from '@/components/training/TrainingCard';
+import { TrainingProgram, UserTrainingStatus, User, NavigationState } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
+import TrainingCard from '../training/TrainingCard';
 import EmptyState from '../common/EmptyState';
 import { AcademicCapIcon } from '../icons';
 

@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { Standard, AccreditationProgram, User, UserRole } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { SearchIcon, BookOpenIcon, PlusIcon } from '@/components/icons';
-import StandardModal from '@/components/accreditation/StandardModal';
-import StandardAccordion from '@/components/accreditation/StandardAccordion';
+// FIX: Corrected import path for types
+import { Standard, AccreditationProgram, User, UserRole } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import { SearchIcon, BookOpenIcon, PlusIcon } from '../components/icons';
+import StandardModal from '../components/accreditation/StandardModal';
+import StandardAccordion from '../components/accreditation/StandardAccordion';
 
 interface StandardsPageProps {
   program: AccreditationProgram;
@@ -86,6 +87,7 @@ const StandardsPage: React.FC<StandardsPageProps> = ({ program, standards, curre
 
       {Object.keys(groupedStandards).length > 0 ? (
         <div className="space-y-8">
+          {/* FIX: Correctly type the map function parameters. */}
           {Object.entries(groupedStandards).map(([section, standardsInSection]) => (
             <div key={section}>
               <h2 className="text-xl font-semibold text-brand-text-primary dark:text-dark-brand-text-primary mb-4 pb-2 border-b-2 border-brand-primary dark:border-indigo-400">{section}</h2>

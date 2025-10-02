@@ -1,5 +1,6 @@
 import React from 'react';
-import { Project, User, NavigationState } from '@/types';
+// FIX: Corrected import path for types
+import { Project, User, NavigationState } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { PlusIcon } from '../components/icons';
 

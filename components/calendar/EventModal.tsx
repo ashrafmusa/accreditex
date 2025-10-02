@@ -4,6 +4,7 @@ import React, { useState, FC, useEffect } from 'react';
 import { CustomCalendarEvent } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 import { TrashIcon } from '../icons';
+import DatePicker from '../ui/DatePicker';
 
 interface EventModalProps {
   isOpen: boolean;
@@ -22,7 +23,7 @@ const EventModal: FC<EventModalProps> = ({ isOpen, onClose, onSave, onDelete, se
     const [titleAr, setTitleAr] = useState('');
     const [descriptionEn, setDescriptionEn] = useState('');
     const [descriptionAr, setDescriptionAr] = useState('');
-    const [date, setDate] = useState('');
+    const [date, setDate] = useState<Date | undefined>();
 
     useEffect(() => {
         if(eventToEdit) {
@@ -30,22 +31,22 @@ const EventModal: FC<EventModalProps> = ({ isOpen, onClose, onSave, onDelete, se
             setTitleAr(eventToEdit.title.ar);
             setDescriptionEn(eventToEdit.description?.en || '');
             setDescriptionAr(eventToEdit.description?.ar || '');
-            setDate(eventToEdit.date);
+            setDate(new Date(eventToEdit.date));
         } else {
             setTitleEn('');
             setTitleAr('');
             setDescriptionEn('');
             setDescriptionAr('');
-            setDate(selectedDate.toISOString().split('T')[0]);
+            setDate(selectedDate);
         }
     }, [eventToEdit, selectedDate, isOpen]);
     
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if(!titleEn || !titleAr) return;
+        if(!titleEn || !titleAr || !date) return;
         onSave({
-            date,
+            date: date.toISOString().split('T')[0],
             title: { en: titleEn, ar: titleAr },
             description: { en: descriptionEn, ar: descriptionAr },
         }, eventToEdit?.id);
@@ -63,7 +64,10 @@ const EventModal: FC<EventModalProps> = ({ isOpen, onClose, onSave, onDelete, se
                     <div className="p-6">
                         <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">{isEditMode ? t('editEvent') : t('createEvent')}</h3>
                          <div className="mt-4 space-y-4">
-                            <div><label htmlFor="date" className={labelClasses}>{t('eventDate')}</label><input type="date" value={date} onChange={e => setDate(e.target.value)} id="date" className={inputClasses} required /></div>
+                            <div>
+                                <label htmlFor="date" className={labelClasses}>{t('eventDate')}</label>
+                                <DatePicker date={date} setDate={setDate} />
+                            </div>
                             <div><label htmlFor="titleEn" className={labelClasses}>{t('eventTitleEn')}</label><input type="text" value={titleEn} onChange={e => setTitleEn(e.target.value)} id="titleEn" className={inputClasses} required /></div>
                             <div><label htmlFor="titleAr" className={labelClasses}>{t('eventTitleAr')}</label><input type="text" value={titleAr} onChange={e => setTitleAr(e.target.value)} id="titleAr" className={inputClasses} required dir="rtl" /></div>
                             <div><label htmlFor="descEn" className={labelClasses}>{t('eventDescriptionEn')}</label><textarea value={descriptionEn} onChange={e => setDescriptionEn(e.target.value)} id="descEn" rows={2} className={inputClasses} /></div>

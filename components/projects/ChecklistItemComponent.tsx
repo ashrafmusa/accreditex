@@ -1,10 +1,15 @@
-import React, { useState, useMemo } from 'react';
-import { ChecklistItem, User, AppDocument, Department, ComplianceStatus, Standard, StandardCriticality } from '@/types';
-import { PaperClipIcon, UserCircleIcon, SparklesIcon, ExclamationTriangleIcon, ChatBubbleLeftEllipsisIcon, CheckCircleIcon, XCircleIcon, MinusCircleIcon, ChevronDownIcon, SlashCircleIcon } from '@/components/icons';
-import { useTranslation } from '@/hooks/useTranslation';
-import { backendService } from '@/services/BackendService';
-import UploadEvidenceModal from '@/components/documents/UploadEvidenceModal';
-import { useToast } from '@/hooks/useToast';
+
+
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+// FIX: Corrected import path for types
+import { ChecklistItem, User, AppDocument, Department, ComplianceStatus, Standard, StandardCriticality } from '../../types';
+import { PaperClipIcon, UserCircleIcon, SparklesIcon, ExclamationTriangleIcon, ChatBubbleLeftEllipsisIcon, CheckCircleIcon, XCircleIcon, MinusCircleIcon, ChevronDownIcon, SlashCircleIcon, CircleStackIcon } from '../icons';
+import { useTranslation } from '../../hooks/useTranslation';
+import { backendService } from '../../services/BackendService';
+import UploadEvidenceModal from '../documents/UploadEvidenceModal';
+import { useToast } from '../../hooks/useToast';
+import LinkDataModal from '../common/LinkDataModal';
+import DatePicker from '../ui/DatePicker';
 
 interface ChecklistItemProps {
   item: ChecklistItem;
@@ -25,9 +30,16 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isLinkDataModalOpen, setIsLinkDataModalOpen] = useState(false);
   const { t, lang } = useTranslation();
   const toast = useToast();
   const assignedUser = users.find(u => u.id === item.assignedTo);
+  
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [showMentionPopover, setShowMentionPopover] = useState(false);
+  const commentInputRef = useRef<HTMLInputElement>(null);
+
+  const [showContextualAi, setShowContextualAi] = useState(false);
   
   const evidenceDocs = documents.filter(doc => item.evidenceFiles.includes(doc.id));
 
@@ -71,17 +83,60 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
     }
   };
 
+  const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    setNewComment(text);
+
+    const cursorPos = e.target.selectionStart;
+    if (cursorPos === null) {
+        setShowMentionPopover(false);
+        return;
+    }
+    
+    const textBeforeCursor = text.substring(0, cursorPos);
+    const mentionMatch = textBeforeCursor.match(/@([\w\s]*)$/);
+
+    if (mentionMatch) {
+        setMentionQuery(mentionMatch[1].toLowerCase());
+        setShowMentionPopover(true);
+    } else {
+        setShowMentionPopover(false);
+    }
+  };
+
+  const handleMentionSelect = (user: User) => {
+    const text = newComment;
+    const cursorPos = commentInputRef.current?.selectionStart || 0;
+    const textBeforeCursor = text.substring(0, cursorPos);
+    
+    const mentionMatch = textBeforeCursor.match(/@([\w\s]*)$/);
+    if (mentionMatch) {
+        const startIndex = mentionMatch.index || 0;
+        const newText = `${text.substring(0, startIndex)}@${user.name} ${text.substring(cursorPos)}`;
+        setNewComment(newText);
+    }
+    setShowMentionPopover(false);
+    setTimeout(() => commentInputRef.current?.focus(), 0);
+  };
+
   const handlePostComment = (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim()) {
         onAddComment(item.id, newComment.trim());
         setNewComment('');
+        setShowMentionPopover(false);
     }
   };
 
   const handleSaveEvidence = (docData: { name: { en: string; ar: string }, uploadedFile: { name: string, type: string }}) => {
     onUploadEvidence(item.id, docData);
     setIsUploadModalOpen(false);
+  }
+
+  const handleLinkResource = (resource: { resourceType: string; resourceId: string; displayText: string }) => {
+    const newLinkedResources = [...(item.linkedFhirResources || []), resource];
+    onUpdate({ ...item, linkedFhirResources: newLinkedResources });
+    setIsLinkDataModalOpen(false);
   }
   
   const inputClasses = "w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 disabled:dark:bg-gray-800 disabled:cursor-not-allowed";
@@ -100,6 +155,27 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
     { status: ComplianceStatus.NotApplicable, icon: SlashCircleIcon, color: 'text-gray-400', text: 'text-gray-800 dark:text-gray-300' },
   ];
 
+  const mentionableUsers = useMemo(() => {
+    if (!showMentionPopover) return [];
+    return users.filter(user => user.name.toLowerCase().includes(mentionQuery) && user.id !== currentUser.id);
+  }, [showMentionPopover, mentionQuery, users, currentUser]);
+
+  const handleActionPlanFocus = () => {
+    if (item.status === ComplianceStatus.NonCompliant && !item.actionPlan) {
+        setShowContextualAi(true);
+    }
+  };
+
+  const handleActionPlanBlur = () => {
+    // Delay hiding to allow click on AI button
+    setTimeout(() => setShowContextualAi(false), 200);
+  };
+  
+  const handleDateChange = (date?: Date) => {
+    if (isFinalized) return;
+    onUpdate({...item, dueDate: date ? date.toISOString().split('T')[0] : null});
+  };
+
   return (
     <>
     <div className="border dark:border-dark-brand-border rounded-lg overflow-hidden transition-shadow hover:shadow-md bg-white dark:bg-dark-brand-surface">
@@ -113,7 +189,7 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
             <div className="flex items-center gap-2 mt-1">
                 <p className="text-xs text-brand-text-secondary dark:text-dark-brand-text-secondary">{t('standard')}: {item.standardId}</p>
                 {standard.criticality && (
-                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${criticalityStyles[standard.criticality]}`}>{t(standard.criticality.toLowerCase() as any)}</span>
+                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${criticalityStyles[standard.criticality]}`}>{t(standard.criticality.toLowerCase() as keyof typeof t)}</span>
                 )}
             </div>
           </div>
@@ -150,10 +226,10 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
                                 className={`px-2 py-1 text-sm font-semibold rounded-md flex items-center gap-1.5 transition-colors ${
                                     isActive ? `bg-white dark:bg-gray-600 shadow-sm ${opt.text}` : 'text-gray-500 hover:bg-white/50 dark:hover:bg-gray-600/50'
                                 }`}
-                                title={t(opt.status.charAt(0).toLowerCase() + opt.status.slice(1).replace(/\s/g, '') as any)}
+                                title={t(opt.status.charAt(0).toLowerCase() + opt.status.slice(1).replace(/\s/g, '') as keyof typeof t)}
                             >
                                 <opt.icon className={`w-5 h-5 ${opt.color}`} />
-                                <span className="hidden sm:inline">{t(opt.status.charAt(0).toLowerCase() + opt.status.slice(1).replace(/\s/g, '') as any)}</span>
+                                <span className="hidden sm:inline">{t(opt.status.charAt(0).toLowerCase() + opt.status.slice(1).replace(/\s/g, '') as keyof typeof t)}</span>
                             </button>
                         );
                     })}
@@ -175,7 +251,11 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
               </div>
               <div>
                 <label className={labelClasses}>{t('dueDate')}</label>
-                <input type="date" value={item.dueDate || ''} onChange={(e) => onUpdate({...item, dueDate: e.target.value || null})} disabled={isFinalized} className={inputClasses} />
+                <DatePicker 
+                    date={item.dueDate ? new Date(item.dueDate) : undefined}
+                    setDate={handleDateChange}
+                    disabled={isFinalized}
+                />
               </div>
               <div className="md:col-span-2">
                 <label className={labelClasses}>{t('notes')}</label>
@@ -184,16 +264,32 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
               <div className="md:col-span-2">
                 <label className={labelClasses}>{t('actionPlan')}</label>
                 <div className="relative">
-                    <textarea rows={4} value={item.actionPlan || ''} onChange={(e) => onUpdate({...item, actionPlan: e.target.value})} placeholder={t('actionPlanPlaceholder')} className={inputClasses} disabled={isFinalized || isAiLoading}/>
+                    <textarea 
+                        rows={4} 
+                        value={item.actionPlan || ''} 
+                        onFocus={handleActionPlanFocus}
+                        onBlur={handleActionPlanBlur}
+                        onChange={(e) => onUpdate({...item, actionPlan: e.target.value})} 
+                        placeholder={t('actionPlanPlaceholder')} 
+                        className={`${inputClasses} pr-28`} 
+                        disabled={isFinalized || isAiLoading}
+                    />
                     {item.status !== ComplianceStatus.Compliant && !isFinalized && (
                         <div className="absolute bottom-2 ltr:right-2 rtl:left-2 flex gap-2">
+                           {showContextualAi && (
+                             <button
+                                type="button"
+                                onMouseDown={handleSuggestActionPlan} // Use onMouseDown to prevent blur from hiding it before click
+                                disabled={isAiLoading}
+                                className="inline-flex items-center justify-center p-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-brand-primary hover:bg-indigo-700 disabled:bg-gray-400"
+                                title={isAiLoading ? t('generating') : t('suggestWithAI')}
+                             >
+                               <SparklesIcon className="h-4 w-4" />
+                             </button>
+                           )}
                            <button onClick={() => onCreateCapa(item)} className="inline-flex items-center justify-center sm:justify-start px-2 sm:px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700" title={t('createCapa')}>
                                <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
                                <span className="hidden sm:inline ltr:ml-1.5 rtl:mr-1.5">{t('createCapa')}</span>
-                           </button>
-                           <button onClick={handleSuggestActionPlan} disabled={isAiLoading} className="inline-flex items-center justify-center sm:justify-start px-2 sm:px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-brand-primary hover:bg-indigo-700 disabled:bg-gray-400" title={isAiLoading ? t('generating') : t('suggestWithAI')}>
-                               <SparklesIcon className="h-4 w-4 flex-shrink-0" />
-                               <span className="hidden sm:inline ltr:ml-1.5 rtl:mr-1.5">{isAiLoading ? t('generating') : t('suggestWithAI')}</span>
                            </button>
                         </div>
                     )}
@@ -201,12 +297,32 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
               </div>
               <div className="md:col-span-2">
                 <h4 className={labelClasses}>{t('evidenceLabel')}</h4>
+                {item.linkedFhirResources && item.linkedFhirResources.length > 0 && (
+                    <div className="mb-2">
+                        <h5 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">{t('linkedDataSources')}</h5>
+                        <ul className="space-y-1">
+                            {item.linkedFhirResources.map((res, index) => (
+                                <li key={index} className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+                                    <CircleStackIcon className="w-4 h-4" />
+                                    <span>{res.displayText}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
                 {evidenceDocs.length > 0 ? (
                      <ul className="space-y-1">
                         {evidenceDocs.map(doc => ( <li key={doc.id} className="text-sm text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">{doc.name[lang]}</li>))}
                      </ul>
-                ) : <p className="text-sm text-gray-500 dark:text-gray-400">{t('noEvidenceUploaded')}</p>}
-                {!isFinalized && <button onClick={() => setIsUploadModalOpen(true)} className="text-sm mt-2 text-brand-primary font-medium hover:underline">{t('uploadFile')}</button>}
+                ) : (item.linkedFhirResources || []).length === 0 && <p className="text-sm text-gray-500 dark:text-gray-400">{t('noEvidenceUploaded')}</p>}
+                {!isFinalized && (
+                    <div className="flex items-center gap-4 mt-2">
+                        <button onClick={() => setIsUploadModalOpen(true)} className="text-sm text-brand-primary font-medium hover:underline">{t('uploadFile')}</button>
+                        <button onClick={() => setIsLinkDataModalOpen(true)} className="text-sm text-brand-primary font-medium hover:underline flex items-center gap-1">
+                           <CircleStackIcon className="w-4 h-4" /> {t('linkLiveData')}
+                        </button>
+                    </div>
+                )}
               </div>
             </div>
             <div className="mt-6 pt-4 border-t dark:border-dark-brand-border">
@@ -217,16 +333,28 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-brand-primary flex items-center justify-center font-bold flex-shrink-0 text-sm">{comment.userName.charAt(0)}</div>
                            <div>
                                <p className="text-sm"><strong className="font-semibold">{comment.userName}</strong> <span className="text-xs text-gray-500">{new Date(comment.timestamp).toLocaleString()}</span></p>
-                               <p className="text-sm text-gray-700 dark:text-gray-300">{comment.text}</p>
+                               <p className="text-sm text-gray-700 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: comment.text.replace(/@([\w\s]+)/g, '<strong class="text-brand-primary">@$1</strong>') }} />
                            </div>
                         </div>
                     ))}
                 </div>
                 {!isFinalized && (
-                  <form onSubmit={handlePostComment} className="mt-4 flex items-center gap-2">
-                      <input type="text" value={newComment} onChange={e => setNewComment(e.target.value)} placeholder={t('addComment')} className={inputClasses} />
-                      <button type="submit" className="px-4 py-2 text-sm font-medium rounded-md text-white bg-brand-primary hover:bg-indigo-700">{t('postComment')}</button>
-                  </form>
+                  <div className="relative">
+                    <form onSubmit={handlePostComment} className="mt-4 flex items-center gap-2">
+                        <input type="text" ref={commentInputRef} value={newComment} onChange={handleCommentChange} placeholder={t('addComment')} className={inputClasses} />
+                        <button type="submit" className="px-4 py-2 text-sm font-medium rounded-md text-white bg-brand-primary hover:bg-indigo-700">{t('postComment')}</button>
+                    </form>
+                    {/* FIX: Correctly check mentionableUsers.map existence and type */}
+                    {showMentionPopover && mentionableUsers && mentionableUsers.length > 0 && (
+                      <div className="absolute bottom-full mb-1 w-full bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+                        {mentionableUsers.map(user => (
+                          <button key={user.id} onClick={() => handleMentionSelect(user)} className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+                            {user.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
             </div>
         </div>
@@ -238,6 +366,13 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
         onClose={() => setIsUploadModalOpen(false)}
         onSave={handleSaveEvidence}
       />
+    )}
+    {isLinkDataModalOpen && (
+        <LinkDataModal
+            isOpen={isLinkDataModalOpen}
+            onClose={() => setIsLinkDataModalOpen(false)}
+            onLink={handleLinkResource}
+        />
     )}
     </>
   );

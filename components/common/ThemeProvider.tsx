@@ -1,6 +1,8 @@
 
+
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
-import { Theme } from '@/types';
+// FIX: Corrected import path for types
+import { Theme } from '../../types';
 
 interface ThemeContextType {
   theme: Theme;

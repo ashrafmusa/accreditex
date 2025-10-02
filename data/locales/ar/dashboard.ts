@@ -15,4 +15,16 @@ export const ar = {
     pendingTasks: 'المهام المعلقة',
     inProject: 'في مشروع',
     noOpenCapa: 'لا توجد تقارير CAPA مفتوحة. عمل رائع في الحفاظ على الامتثال!',
+    // Project Lead Dashboard
+    projectLeadDashboardTitle: "لوحة تحكم قائد المشروع",
+    myProjects: "مشاريعي",
+    teamCompliance: "امتثال الفريق",
+    // Team Member Dashboard
+    teamMemberDashboardTitle: "لوحة التحكم الخاصة بي",
+    myOpenTasks: "مهامي المفتوحة",
+    myComplianceRate: "معدل امتثالي",
+    tasksCompleted: "المهام المكتملة",
+    overdue: "متأخر",
+    // New
+    barChartTooltip: 'انقر لعرض المشروع',
 };

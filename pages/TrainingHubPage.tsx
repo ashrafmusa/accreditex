@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { TrainingProgram, User, NavigationState, UserRole } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { AcademicCapIcon } from '@/components/icons';
-import MyTrainingTab from '@/components/training/MyTrainingTab';
-import TrainingAdminTab from '@/components/training/TrainingAdminTab';
-import { useAppStore } from '@/stores/useAppStore';
-import { useUserStore } from '@/stores/useUserStore';
+// FIX: Corrected import path for types
+import { TrainingProgram, User, NavigationState, UserRole } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import { AcademicCapIcon } from '../components/icons';
+import MyTrainingTab from '../components/training/MyTrainingTab';
+import TrainingAdminTab from '../components/training/TrainingAdminTab';
+import { useAppStore } from '../stores/useAppStore';
+import { useUserStore } from '../stores/useUserStore';
 
 interface TrainingHubPageProps {
   setNavigation: (state: NavigationState) => void;

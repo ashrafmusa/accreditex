@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Department } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
+// FIX: Corrected import path for types
+import { Department } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface DepartmentModalProps {
   department: Department | null;

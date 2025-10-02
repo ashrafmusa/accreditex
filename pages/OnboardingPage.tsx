@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useTranslation } from '@/hooks/useTranslation';
-import { LogoIcon, ChartPieIcon, FolderIcon, UsersIcon, ShieldCheckIcon, SparklesIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
+import { useTranslation } from '../hooks/useTranslation';
+import { LogoIcon, ChartPieIcon, FolderIcon, UsersIcon, ShieldCheckIcon, SparklesIcon, ChevronLeftIcon, ChevronRightIcon } from '../components/icons';
 
 interface OnboardingPageProps {
   onComplete: () => void;

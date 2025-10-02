@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { NavigationState, User } from "@/types";
-import { backendService } from "@/services/BackendService";
-import Layout from "@/components/common/Layout";
-import { LanguageProvider } from "@/components/common/LanguageProvider";
-import { ThemeProvider } from "@/components/common/ThemeProvider";
-import { ToastProvider } from "@/components/common/Toast";
-import { useToast } from "@/hooks/useToast";
-import MainRouter from "@/components/common/MainRouter";
-import OnboardingPage from "@/pages/OnboardingPage";
-import LoginPage from "@/pages/LoginPage";
-import LoadingScreen from "@/components/common/LoadingScreen";
-import { useProjectStore } from "@/stores/useProjectStore";
-import { useUserStore } from "@/stores/useUserStore";
-import { useAppStore } from "@/stores/useAppStore";
+import React, { useState, useEffect, useRef } from "react";
+// FIX: Corrected import path for types
+import { NavigationState, User } from "./types";
+import { backendService } from "./services/BackendService";
+import Layout from "./components/common/Layout";
+import { LanguageProvider } from "./components/common/LanguageProvider";
+import { ThemeProvider } from "./components/common/ThemeProvider";
+import { ToastProvider } from "./components/common/Toast";
+import { useToast } from "./hooks/useToast";
+import MainRouter from "./components/common/MainRouter";
+import OnboardingPage from "./pages/OnboardingPage";
+// FIX: Corrected import path for LoginPage
+import LoginPage from "./pages/LoginPage";
+import LoadingScreen from "./components/common/LoadingScreen";
+import { useProjectStore } from "./stores/useProjectStore";
+import { useUserStore } from "./stores/useUserStore";
+import { useAppStore } from "./stores/useAppStore";
 
 const App: React.FC = () => {
   return (
@@ -27,8 +29,10 @@ const App: React.FC = () => {
 };
 
 const AppInitializer: React.FC = () => {
+  console.log("DEBUG: Rendering AppInitializer");
   const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
+  const initialized = useRef(false);
 
   const fetchProjects = useProjectStore((state) => state.fetchProjects);
   const fetchUsers = useUserStore((state) => state.fetchUsers);
@@ -36,7 +40,13 @@ const AppInitializer: React.FC = () => {
   const appSettings = useAppStore((state) => state.appSettings);
 
   useEffect(() => {
+    console.log("DEBUG: Running initializeApp useEffect - SHOULD RUN ONCE");
     const initializeApp = async () => {
+      if (initialized.current) {
+        return;
+      }
+      initialized.current = true;
+
       try {
         await backendService.initialize();
         await fetchAllAppData();
@@ -50,12 +60,43 @@ const AppInitializer: React.FC = () => {
       }
     };
     initializeApp();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    const handleOnline = async () => {
+      toast.info("You are back online. Syncing changes...");
+      try {
+        await backendService.processOfflineQueue();
+        // Refetch all data to ensure UI is consistent after sync
+        await fetchAllAppData();
+        await fetchProjects();
+        await fetchUsers();
+        toast.success("Offline changes synced successfully!");
+      } catch (error) {
+        console.error("Failed to sync offline changes:", error);
+        toast.error("Failed to sync some offline changes.");
+      }
+    };
+
+    const handleOffline = () => {
+      toast.info("You are offline. Changes will be saved and synced later.");
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
   }, []);
 
+  // Set the primary color theme variable when app settings load/change.
   useEffect(() => {
+    console.log("DEBUG: Running primaryColor useEffect");
     if (appSettings?.primaryColor) {
-      document.documentElement.style.setProperty('--brand-primary-color', appSettings.primaryColor);
+      document.documentElement.style.setProperty(
+        "--brand-primary-color",
+        appSettings.primaryColor
+      );
     }
   }, [appSettings?.primaryColor]);
 
@@ -67,6 +108,7 @@ const AppInitializer: React.FC = () => {
 };
 
 const AppManager: React.FC = () => {
+  console.log("DEBUG: Rendering AppManager");
   const [navigation, setNavigation] = useState<NavigationState>({
     view: "dashboard",
   });

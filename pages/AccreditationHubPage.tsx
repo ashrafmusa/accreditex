@@ -1,15 +1,16 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { AccreditationProgram, UserRole, NavigationState } from '@/types';
-import { useTranslation } from '@/hooks/useTranslation';
-import { PlusIcon, ShieldCheckIcon } from '@/components/icons';
-import ProgramModal from '@/components/accreditation/ProgramModal';
-import ProgramCard from '@/components/accreditation/ProgramCard';
-import EmptyState from '@/components/common/EmptyState';
-import { useAppStore } from '@/stores/useAppStore';
-import { useProjectStore } from '@/stores/useProjectStore';
-import { useUserStore } from '@/stores/useUserStore';
-import ImportStandardsModal from '@/components/accreditation/ImportStandardsModal';
-import { useToast } from '@/hooks/useToast';
+// FIX: Corrected import path for types
+import { AccreditationProgram, UserRole, NavigationState } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import { PlusIcon, ShieldCheckIcon } from '../components/icons';
+import ProgramModal from '../components/accreditation/ProgramModal';
+import ProgramCard from '../components/accreditation/ProgramCard';
+import EmptyState from '../components/common/EmptyState';
+import { useAppStore } from '../stores/useAppStore';
+import { useProjectStore } from '../stores/useProjectStore';
+import { useUserStore } from '../stores/useUserStore';
+import ImportStandardsModal from '../components/accreditation/ImportStandardsModal';
+import { useToast } from '../hooks/useToast';
 
 interface AccreditationHubPageProps {
   setNavigation: (state: NavigationState) => void;

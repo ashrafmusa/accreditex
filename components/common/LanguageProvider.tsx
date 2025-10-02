@@ -1,7 +1,9 @@
 
 
+
 import React, { createContext, useState, useEffect, useCallback } from 'react';
-import { Language, Direction } from '@/types';
+// FIX: Corrected import path for types
+import { Language, Direction } from '../../types';
 
 interface LanguageContextType {
   lang: Language;

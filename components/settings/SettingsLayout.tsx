@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavigationState, SettingsSection } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
-import { Cog6ToothIcon, UserCircleIcon, UserGroupIcon, CircleStackIcon, InformationCircleIcon, ShieldCheckIcon, IdentificationIcon } from '../icons';
+import { Cog6ToothIcon, UserCircleIcon, UserGroupIcon, CircleStackIcon, InformationCircleIcon, ShieldCheckIcon, IdentificationIcon, KeyIcon } from '../icons';
 import UsersPage from '../../pages/UsersPage';
 import AccreditationHubPage from '../../pages/AccreditationHubPage';
 import CompetencyLibraryPage from '../competencies/CompetencyLibraryPage';
@@ -9,6 +9,7 @@ import GeneralSettingsPage from './GeneralSettingsPage';
 import ProfileSettingsPage from './ProfileSettingsPage';
 import DataSettingsPage from './DataSettingsPage';
 import AboutSettingsPage from './AboutSettingsPage';
+import SecuritySettingsPage from './SecuritySettingsPage';
 
 
 interface SettingsLayoutProps {
@@ -23,6 +24,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ section, setNavigation 
   const navItems = [
     { id: 'general', label: t('general'), icon: Cog6ToothIcon },
     { id: 'profile', label: t('profile'), icon: UserCircleIcon },
+    { id: 'security', label: t('security'), icon: KeyIcon },
     { id: 'users', label: t('users'), icon: UserGroupIcon },
     { id: 'accreditationHub', label: t('accreditationHub'), icon: ShieldCheckIcon },
     { id: 'competencies', label: t('competencies'), icon: IdentificationIcon },
@@ -34,6 +36,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ section, setNavigation 
     switch (activeSection) {
       case 'general': return <GeneralSettingsPage />;
       case 'profile': return <ProfileSettingsPage />;
+      case 'security': return <SecuritySettingsPage />;
       case 'users': return <UsersPage setNavigation={setNavigation} />;
       case 'accreditationHub': return <AccreditationHubPage setNavigation={setNavigation} />;
       case 'competencies': return <CompetencyLibraryPage />;

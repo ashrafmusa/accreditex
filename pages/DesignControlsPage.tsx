@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Project, AppDocument, DesignControlItem } from '@/types';
+import { Project, AppDocument, DesignControlItem } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { PlusIcon, TrashIcon, PaperClipIcon } from '../components/icons';
 

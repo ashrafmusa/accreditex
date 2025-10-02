@@ -1,20 +1,23 @@
+
+
 import React, { useState, useMemo } from 'react';
-import { Project, User, AppDocument, ProjectDetailView, Department, Standard, AccreditationProgram, NavigationState, ChecklistItem, CAPAReport, ProjectStatus, UserRole, DesignControlItem, TrainingProgram } from '@/types';
-import ProjectDetailSidebar from '@/components/projects/ProjectDetailSidebar';
-import ProjectChecklist from '@/components/projects/ProjectChecklist';
-import DocumentsPage from '@/pages/DocumentsPage';
-import ProjectOverview from '@/pages/ProjectOverview';
-import MockSurveyListPage from '@/pages/MockSurveyListPage';
-import CapaModal from '@/components/risk/CapaModal';
-import { useTranslation } from '@/hooks/useTranslation';
-import AuditLogPage from '@/pages/AuditLogPage';
-import SignatureModal from '@/components/common/SignatureModal';
-import DesignControlsPage from '@/pages/DesignControlsPage';
-import ProjectDetailHeader from '@/components/projects/ProjectDetailHeader';
-import GenerateReportModal from '@/components/documents/GenerateReportModal';
-import { useProjectStore } from '@/stores/useProjectStore';
-import { useUserStore } from '@/stores/useUserStore';
-import { useAppStore } from '@/stores/useAppStore';
+// FIX: Corrected import path for types
+import { Project, User, AppDocument, ProjectDetailView, Department, Standard, AccreditationProgram, NavigationState, ChecklistItem, CAPAReport, ProjectStatus, UserRole, DesignControlItem, TrainingProgram } from '../types';
+import ProjectDetailSidebar from '../components/projects/ProjectDetailSidebar';
+import ProjectChecklist from '../components/projects/ProjectChecklist';
+import DocumentsPage from './DocumentsPage';
+import ProjectOverview from './ProjectOverview';
+import MockSurveyListPage from './MockSurveyListPage';
+import CapaModal from '../components/risk/CapaModal';
+import { useTranslation } from '../hooks/useTranslation';
+import AuditLogPage from './AuditLogPage';
+import SignatureModal from '../components/common/SignatureModal';
+import DesignControlsPage from './DesignControlsPage';
+import ProjectDetailHeader from '../components/projects/ProjectDetailHeader';
+import GenerateReportModal from '../components/documents/GenerateReportModal';
+import { useProjectStore } from '../stores/useProjectStore';
+import { useUserStore } from '../stores/useUserStore';
+import { useAppStore } from '../stores/useAppStore';
 
 interface ProjectDetailPageProps {
   setNavigation: (state: NavigationState) => void;
