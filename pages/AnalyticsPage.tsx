@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Project, User, Department, AccreditationProgram, Standard, ComplianceStatus } from '../types';
+import { Project, User, Department, AccreditationProgram, Standard, ComplianceStatus, NavigationState } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { ChartBarSquareIcon, CheckCircleIcon, ExclamationTriangleIcon, AcademicCapIcon, BookOpenIcon } from '../components/icons';
 import DepartmentalPerformanceChart from '../components/analytics/DepartmentalPerformanceChart';
@@ -11,7 +11,11 @@ import { useProjectStore } from '../stores/useProjectStore';
 import { useUserStore } from '../stores/useUserStore';
 import { useAppStore } from '../stores/useAppStore';
 
-const AnalyticsPage: React.FC = () => {
+interface AnalyticsPageProps {
+  setNavigation: (state: NavigationState) => void;
+}
+
+const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ setNavigation }) => {
   const { t, lang } = useTranslation();
 
   const projects = useProjectStore(state => state.projects);
@@ -94,6 +98,7 @@ const AnalyticsPage: React.FC = () => {
       </div>
       
       <div className="bg-brand-surface dark:bg-dark-brand-surface p-4 rounded-xl shadow-md border border-brand-border dark:border-dark-brand-border">
+        <h3 className="font-semibold mb-3 px-2 text-brand-text-primary dark:text-dark-brand-text-primary">{t('controlPanel')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <select value={dateFilter} onChange={e => setDateFilter(e.target.value)} className={selectClasses}><option value="all">{t('allTime')}</option><option value="30">{t('last30Days')}</option><option value="90">{t('last90Days')}</option></select>
             <select value={programFilter} onChange={e => setProgramFilter(e.target.value)} className={selectClasses}><option value="all">{t('allPrograms')}</option>{programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
@@ -108,13 +113,21 @@ const AnalyticsPage: React.FC = () => {
         <StatCard title={t('mostFailedStandard')} value={kpis.mostFailedStandard} icon={BookOpenIcon} color="from-amber-500 to-amber-700 bg-gradient-to-br" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DepartmentalPerformanceChart projects={filteredData.projects} departments={departmentFilter === 'all' ? departments : departments.filter(d => d.id === departmentFilter)} users={filteredData.users} />
-        <CapaStatusChart projects={filteredData.projects} />
-        <ComplianceOverTimeChart projects={filteredData.projects} />
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-3">
+            <DepartmentalPerformanceChart projects={filteredData.projects} departments={departmentFilter === 'all' ? departments : departments.filter(d => d.id === departmentFilter)} users={filteredData.users} setNavigation={setNavigation} />
+        </div>
+        <div className="lg:col-span-2">
+            <CapaStatusChart projects={filteredData.projects} />
+        </div>
+        <div className="lg:col-span-3">
+            <ComplianceOverTimeChart projects={filteredData.projects} />
+        </div>
+        <div className="lg:col-span-2">
+            <ProblematicStandardsTable checklistItems={filteredData.checklistItems} />
+        </div>
       </div>
       
-      <ProblematicStandardsTable checklistItems={filteredData.checklistItems} />
     </div>
   );
 };

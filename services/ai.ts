@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { Standard, Language, AIQualityBriefing, Project, Risk, User, Department, Competency } from '../types';
 
-const API_KEY = (window as any).electronAPI?.getApiKey();
+const API_KEY = process.env.API_KEY;
 
 class AIService {
     private _ai: GoogleGenAI | null = null;
@@ -59,9 +59,9 @@ class AIService {
         if (!this._ai) throw new Error("AI Service not initialized.");
 
         // Data summarization
-        const projectSummary = `There are ${projects.length} projects. Key projects include ${projects.slice(0, 2).map(p => p.name).join(', ')}. Overall compliance is around ${(projects.reduce((acc, p) => acc + p.progress, 0) / projects.length).toFixed(1)}%.`;
+        const projectSummary = `There are ${projects.length} projects. Key projects include ${projects.slice(0, 2).map(p => p.name).join(', ')}. Overall compliance is around ${ (projects.reduce((acc, p) => acc + p.progress, 0) / projects.length).toFixed(1) }%.`;
         const riskSummary = `There are ${risks.length} open risks. High-impact risks include: ${risks.filter(r => r.impact >= 4).slice(0, 2).map(r => r.title).join(', ')}.`;
-
+        
         const prompt = `You are a healthcare quality management consultant. Based on the following summarized data, provide a concise executive briefing.
         - Identify 2-3 key organizational strengths.
         - Identify 2-3 primary areas for improvement or concern.
@@ -102,7 +102,7 @@ class AIService {
                 responseSchema
             }
         });
-
+        
         return JSON.parse(response.text);
     }
 }

@@ -49,6 +49,7 @@ export const ar = {
     hireDate: 'تاريخ التعيين',
     areYouSureDeleteUser: 'هل أنت متأكد من رغبتك في حذف هذا المستخدم؟',
     noUsersFound: 'لم يتم العثور على مستخدمين.',
+    lastAdminRoleUnchangeable: 'لا يمكن تغيير دور المسؤول الأخير.',
     // Accreditation Hub
     accreditationHubDescription: 'إدارة جميع برامج الاعتماد ومكتبات معاييرها.',
     createNewProgram: 'إنشاء برنامج جديد',

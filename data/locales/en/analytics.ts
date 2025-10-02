@@ -18,4 +18,6 @@ export const en = {
     capaResolutionRate: 'CAPA Resolution Rate',
     capaStatusAnalysis: 'CAPA Status Analysis',
     totalTasksTooltip: 'Total Tasks',
+    controlPanel: 'Control Panel',
+    barChartTooltip: 'Click bar to view department details',
 };

@@ -18,7 +18,11 @@
     "zustand": "https://aistudiocdn.com/zustand@^5.0.8",
     "cobe": "https://aistudiocdn.com/cobe@^0.6.5",
     "framer-motion": "https://aistudiocdn.com/framer-motion@^11.3.19",
-    "use-debounce": "https://aistudiocdn.com/use-debounce@^10.0.6"
+    "use-debounce": "https://aistudiocdn.com/use-debounce@^10.0.6",
+    "firebase/app": "https://aistudiocdn.com/firebase@^10.12.4/app",
+    "firebase/auth": "https://aistudiocdn.com/firebase@^10.12.4/auth",
+    "firebase/firestore": "https://aistudiocdn.com/firebase@^10.12.4/firestore",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.3.0/"
   }
 }
 </script>
@@ -47,7 +51,6 @@
         }
       }
     </script>
-
     <style>
       :root {
         --brand-primary-color: #4f46e5;
@@ -104,27 +107,9 @@
       .dark-prose blockquote { border-color: #4b5563; color: #d1d5db; }
     </style>
 <link rel="stylesheet" href="/index.css">
-=======
-  <script type="importmap">
-{
-  "imports": {
-    "@google/genai": "https://esm.sh/@google/genai",
-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "react": "https://esm.sh/react@18.2.0",
-    "recharts": "https://esm.sh/recharts@2.12.7",
-    "zustand": "https://esm.sh/zustand@4.5.2",
-    "@/": "./",
-    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
-    "react/": "https://esm.sh/react@18.2.0/"
-  }
-}
-</script>
-<link rel="stylesheet" href="index.css">
->>>>>>> e3eafe640457269bfd962d53ccfc4355dfb25155
 </head>
 <body>
     <div id="root"></div>
-
     <script type="module" src="index.tsx"></script>
     <script>
         if ('serviceWorker' in navigator) {
@@ -138,8 +123,5 @@
         }
     </script>
 <script type="module" src="/index.tsx"></script>
-
-  <script type="module" src="index.tsx"></script>
-
 </body>
 </html>

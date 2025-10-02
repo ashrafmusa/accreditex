@@ -47,13 +47,13 @@ const defaultAppSettings: AppSettings = {
   defaultUserRole: initialSettings.defaultUserRole as UserRole,
   passwordPolicy: initialSettings.passwordPolicy,
   globeSettings: {
-    baseColor: '#1e293b',
-    markerColor: '#4f46e5',
-    glowColor: '#6366f1',
-    scale: 2.5,
-    darkness: 0.9,
-    lightIntensity: 6,
-    rotationSpeed: 0.02,
+      baseColor: '#1e293b',
+      markerColor: '#4f46e5',
+      glowColor: '#6366f1',
+      scale: 2.5,
+      darkness: 0.9,
+      lightIntensity: 6,
+      rotationSpeed: 0.02,
   },
 };
 
@@ -90,7 +90,7 @@ class DataService {
   private saveDatabase() {
     localStorage.setItem(DB_KEY, JSON.stringify(this.db));
   }
-
+  
   public async initialize(): Promise<void> {
     const isSeeded = localStorage.getItem(SEED_FLAG_KEY);
     if (!isSeeded) {
@@ -118,7 +118,7 @@ class DataService {
       localStorage.setItem(SEED_FLAG_KEY, 'true');
     }
   }
-
+  
   // Generic getters and setters for simplicity
   getProjects = (): Project[] => this.db.projects;
   setProjects = (data: Project[]): Promise<void> => { this.db.projects = data; this.saveDatabase(); return Promise.resolve(); };
@@ -154,7 +154,7 @@ class DataService {
   setAudits = (data: Audit[]): Promise<void> => { this.db.audits = data; this.saveDatabase(); return Promise.resolve(); };
   getUserTrainingStatuses = (): { [userId: string]: UserTrainingStatus } => this.db.userTrainingStatuses;
   setUserTrainingStatuses = (data: { [userId: string]: UserTrainingStatus }): Promise<void> => { this.db.userTrainingStatuses = data; this.saveDatabase(); return Promise.resolve(); };
-
+  
   // Data Management
   exportAllData = (): string => {
     return JSON.stringify(this.db, null, 2);
@@ -176,7 +176,7 @@ class DataService {
       throw error;
     }
   }
-
+  
   resetApplication = async (): Promise<void> => {
     localStorage.removeItem(DB_KEY);
     localStorage.removeItem(SEED_FLAG_KEY);

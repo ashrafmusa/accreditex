@@ -97,7 +97,7 @@ const MainRouter: React.FC<MainRouterProps> = ({ navigation, setNavigation }) =>
       case 'dashboard':
         return <DashboardPage setNavigation={setNavigation} />;
       case 'analytics':
-        return <AnalyticsPage />;
+        return <AnalyticsPage setNavigation={setNavigation} />;
       case 'qualityInsights':
         return <QualityInsightsPage projects={projects} risks={risks} users={users} departments={departments} competencies={competencies} userTrainingStatuses={userTrainingStatuses} />;
       case 'calendar':

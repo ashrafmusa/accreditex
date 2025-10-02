@@ -2,11 +2,11 @@
 
 // FIX: Corrected import path for types
 import {
-    Project, User, Standard, AppDocument, Department, TrainingProgram,
-    CertificateData, AccreditationProgram, MockSurvey, CustomCalendarEvent, Notification,
-    AppSettings, Competency, Risk, IncidentReport, AuditPlan, Audit, Comment,
-    CAPAReport, DesignControlItem, UserRole, ComplianceStatus, LocalizedString,
-    UserTrainingStatus, MockSurveyResult, ChecklistItem, ProjectStatus,
+  Project, User, Standard, AppDocument, Department, TrainingProgram,
+  CertificateData, AccreditationProgram, MockSurvey, CustomCalendarEvent, Notification,
+  AppSettings, Competency, Risk, IncidentReport, AuditPlan, Audit, Comment,
+  CAPAReport, DesignControlItem, UserRole, ComplianceStatus, LocalizedString,
+  UserTrainingStatus, MockSurveyResult, ChecklistItem, ProjectStatus,
 } from '../types';
 // FIX: Corrected import path for dataService
 import { dataService } from './data';
@@ -15,289 +15,289 @@ import { aiService } from './ai';
 import { useUserStore } from '../stores/useUserStore';
 
 class BackendService {
-    private offlineQueue: (() => Promise<any>)[] = [];
+  private offlineQueue: (() => Promise<any>)[] = [];
 
-    public async initialize(): Promise<void> {
-        return dataService.initialize();
+  public async initialize(): Promise<void> {
+    return dataService.initialize();
+  }
+  
+  private async _execute<T>(action: () => Promise<T>): Promise<T> {
+    if (navigator.onLine) {
+      return await action();
+    } else {
+      this.offlineQueue.push(action);
+      // For mock purposes, we resolve with a default value.
+      // In a real app, you might show a pending state in the UI.
+      return Promise.resolve(undefined as T);
     }
+  }
 
-    private async _execute<T>(action: () => Promise<T>): Promise<T> {
-        if (navigator.onLine) {
-            return await action();
-        } else {
-            this.offlineQueue.push(action);
-            // For mock purposes, we resolve with a default value.
-            // In a real app, you might show a pending state in the UI.
-            return Promise.resolve(undefined as T);
+  public async processOfflineQueue(): Promise<void> {
+    for (const action of this.offlineQueue) {
+      await action();
+    }
+    this.offlineQueue = [];
+  }
+  
+  // Getters
+  getProjects = (): Project[] => dataService.getProjects();
+  getUsers = (): User[] => dataService.getUsers();
+  getStandards = (): Standard[] => dataService.getStandards();
+  getDocuments = (): AppDocument[] => dataService.getDocuments();
+  getDepartments = (): Department[] => dataService.getDepartments();
+  getAccreditationPrograms = (): AccreditationProgram[] => dataService.getAccreditationPrograms();
+  getTrainingPrograms = (): TrainingProgram[] => dataService.getTrainingPrograms();
+  getCompetencies = (): Competency[] => dataService.getCompetencies();
+  getRisks = (): Risk[] => dataService.getRisks();
+  getIncidentReports = (): IncidentReport[] => dataService.getIncidentReports();
+  getAuditPlans = (): AuditPlan[] => dataService.getAuditPlans();
+  getAudits = (): Audit[] => dataService.getAudits();
+  getUserTrainingStatuses = (): { [userId: string]: UserTrainingStatus } => dataService.getUserTrainingStatuses();
+  getCertificates = (): CertificateData[] => dataService.getCertificates();
+  getCustomEvents = (): CustomCalendarEvent[] => dataService.getCustomEvents();
+  getNotifications = (userId: string): Notification[] => dataService.getNotifications().filter(n => n.userId === userId).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  getAppSettings = (): AppSettings | null => dataService.getAppSettings();
+
+  // Authentication
+  authenticateUser(email: string, pass: string): User | null {
+    const user = this.getUsers().find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
+    return user || null;
+  }
+  
+  // Projects
+  async createProject(newProjectData: any): Promise<Project> {
+      const standards = this.getStandards().filter(s => s.programId === newProjectData.programId);
+      const checklist: ChecklistItem[] = standards.flatMap(s =>
+          (s.subStandards && s.subStandards.length > 0)
+              ? s.subStandards.map(sub => ({
+                  id: `${s.standardId}-${sub.id}`,
+                  item: sub.description,
+                  standardId: s.standardId,
+                  status: ComplianceStatus.NonCompliant,
+                  assignedTo: null,
+                  dueDate: null,
+                  actionPlan: '',
+                  notes: '',
+                  evidenceFiles: [],
+                  comments: []
+              }))
+              : [{
+                  id: s.standardId,
+                  item: s.description,
+                  standardId: s.standardId,
+                  status: ComplianceStatus.NonCompliant,
+                  assignedTo: null,
+                  dueDate: null,
+                  actionPlan: '',
+                  notes: '',
+                  evidenceFiles: [],
+                  comments: []
+              }]
+      );
+      
+      const newProject: Project = {
+          id: `proj-${Date.now()}`,
+          ...newProjectData,
+          projectLead: this.getUsers().find(u => u.id === newProjectData.leadId)!,
+          status: ProjectStatus.NotStarted,
+          progress: 0,
+          checklist,
+          activityLog: [],
+          mockSurveys: [],
+          capaReports: [],
+          designControls: [],
+      };
+      const projects = [...this.getProjects(), newProject];
+      await this._execute(() => dataService.setProjects(projects));
+      return newProject;
+  }
+
+  async updateProject(updatedProject: Project): Promise<Project> {
+      const projects = this.getProjects().map(p => p.id === updatedProject.id ? updatedProject : p);
+      await this._execute(() => dataService.setProjects(projects));
+      return updatedProject;
+  }
+  
+  async deleteProject(projectId: string): Promise<void> {
+    const projects = this.getProjects().filter(p => p.id !== projectId);
+    await this._execute(() => dataService.setProjects(projects));
+  }
+  
+  // Checklist & related
+  async addComment(projectId: string, checklistItemId: string, commentData: Omit<Comment, 'id'>): Promise<Project> {
+      const project = this.getProjects().find(p => p.id === projectId)!;
+      const checklist = project.checklist.map(item => {
+          if (item.id === checklistItemId) {
+              const newComment: Comment = { ...commentData, id: `comment-${Date.now()}` };
+              return { ...item, comments: [...item.comments, newComment] };
+          }
+          return item;
+      });
+      const updatedProject = { ...project, checklist };
+      await this.updateProject(updatedProject);
+      return updatedProject;
+  }
+  
+  async addCapaReport(projectId: string, capaData: Omit<CAPAReport, 'id'>): Promise<Project> {
+    const project = this.getProjects().find(p => p.id === projectId)!;
+    const newCapa: CAPAReport = { ...capaData, id: `capa-${Date.now()}` };
+    const updatedProject = { ...project, capaReports: [...project.capaReports, newCapa] };
+    await this.updateProject(updatedProject);
+    return updatedProject;
+  }
+  
+  async finalizeProject(projectId: string, userId: string, pass: string): Promise<Project> {
+    const user = this.getUsers().find(u => u.id === userId);
+    if (user?.password !== pass) throw new Error("Incorrect password");
+
+    const project = this.getProjects().find(p => p.id === projectId)!;
+    const updatedProject = {
+        ...project,
+        status: ProjectStatus.Finalized,
+        finalizedBy: user.name,
+        finalizationDate: new Date().toISOString()
+    };
+    await this.updateProject(updatedProject);
+    return updatedProject;
+  }
+
+  // Users
+  async addUser(userData: Omit<User, 'id'>): Promise<User> {
+    const newUser: User = { ...userData, id: `user-${Date.now()}`, trainingAssignments: [], competencies: [] };
+    const users = [...this.getUsers(), newUser];
+    await this._execute(() => dataService.setUsers(users));
+    return newUser;
+  }
+
+  async updateUser(updatedUser: User): Promise<User> {
+    const users = this.getUsers().map(u => u.id === updatedUser.id ? updatedUser : u);
+    await this._execute(() => dataService.setUsers(users));
+    return updatedUser;
+  }
+  
+  async deleteUser(userId: string): Promise<void> {
+    const users = this.getUsers().filter(u => u.id !== userId);
+    await this._execute(() => dataService.setUsers(users));
+  }
+
+  // AI Service Wrappers
+  suggestActionPlan = (desc: string) => aiService.suggestActionPlan(desc);
+  suggestRootCause = (desc: string, notes: string) => aiService.suggestRootCause(desc, notes);
+  generatePolicyFromStandard = (standard: Standard, lang: 'en' | 'ar') => aiService.generatePolicyFromStandard(standard, lang);
+  improveWriting = (text: string, lang: 'en' | 'ar') => aiService.improveWriting(text, lang);
+  translateText = (text: string, lang: 'en' | 'ar') => aiService.translateText(text, lang);
+  generateQualityBriefing = (p: Project[], r: Risk[], u: User[], d: Department[], c: Competency[]) => aiService.generateQualityBriefing(p,r,u,d,c);
+
+  // Document Management
+  async uploadEvidenceDocument(projectId: string, checklistItemId: string, docData: { name: LocalizedString, uploadedFile: { name: string, type: string }}, uploaderName: string) {
+    const newDocument: AppDocument = {
+      id: `doc-${Date.now()}`,
+      name: docData.name,
+      type: 'Evidence',
+      isControlled: false,
+      status: 'Approved', // Evidence is auto-approved
+      content: { en: `File: ${docData.uploadedFile.name}`, ar: `ملف: ${docData.uploadedFile.name}` },
+      currentVersion: 1,
+      versionHistory: [{
+        version: 1,
+        date: new Date().toISOString(),
+        uploadedBy: uploaderName,
+        content: { en: `File: ${docData.uploadedFile.name}`, ar: `ملف: ${docData.uploadedFile.name}` }
+      }],
+      uploadedAt: new Date().toISOString(),
+    };
+    const documents = [...this.getDocuments(), newDocument];
+    await dataService.setDocuments(documents);
+
+    const project = this.getProjects().find(p => p.id === projectId)!;
+    const checklist = project.checklist.map(item => {
+        if (item.id === checklistItemId) {
+            return { ...item, evidenceFiles: [...item.evidenceFiles, newDocument.id] };
         }
-    }
+        return item;
+    });
+    const updatedProject = { ...project, checklist };
+    await this.updateProject(updatedProject);
+    
+    return { updatedProject, newDocument };
+  }
 
-    public async processOfflineQueue(): Promise<void> {
-        for (const action of this.offlineQueue) {
-            await action();
+  // Add other backend methods as needed...
+  async markNotificationAsRead(userId: string, notificationId: string): Promise<void> {}
+  async markAllNotificationsAsRead(userId: string): Promise<void> {}
+  async updateDesignControls(projectId: string, designControls: DesignControlItem[]): Promise<Project> {
+    const project = this.getProjects().find(p => p.id === projectId)!;
+    const updatedProject = { ...project, designControls };
+    await this.updateProject(updatedProject);
+    return updatedProject;
+  }
+  async generateProjectReport(project: Project, reportType: string, userName: string): Promise<AppDocument> {
+      const newDoc: AppDocument = {
+        id: `doc-report-${Date.now()}`,
+        name: { en: `${project.name} - Compliance Summary`, ar: `ملخص الامتثال - ${project.name}` },
+        type: 'Report',
+        isControlled: true,
+        status: 'Draft',
+        content: { en: `Report content for ${project.name}`, ar: `محتوى التقرير لمشروع ${project.name}` },
+        currentVersion: 1,
+        versionHistory: [],
+        uploadedAt: new Date().toISOString(),
+      };
+      const documents = [...this.getDocuments(), newDoc];
+      await dataService.setDocuments(documents);
+      return newDoc;
+  }
+  async updateCapa(projectId: string, updatedCapa: CAPAReport): Promise<Project> {
+    const project = this.getProjects().find(p => p.id === projectId)!;
+    const capaReports = project.capaReports.map(c => c.id === updatedCapa.id ? updatedCapa : c);
+    const updatedProject = { ...project, capaReports };
+    await this.updateProject(updatedProject);
+    return updatedProject;
+  }
+  async startMockSurvey(projectId: string, surveyorId: string): Promise<{ updatedProject: Project, newSurvey: MockSurvey }> {
+    const project = this.getProjects().find(p => p.id === projectId)!;
+    const newSurvey: MockSurvey = {
+      id: `survey-${Date.now()}`,
+      date: new Date().toISOString().split('T')[0],
+      surveyorId,
+      status: 'In Progress',
+      results: project.checklist.map(item => ({
+        checklistItemId: item.id,
+        result: 'Not Applicable',
+        notes: ''
+      }))
+    };
+    const updatedProject = { ...project, mockSurveys: [...project.mockSurveys, newSurvey] };
+    await this.updateProject(updatedProject);
+    return { updatedProject, newSurvey };
+  }
+  async updateMockSurvey(projectId: string, survey: MockSurvey): Promise<Project> {
+    const project = this.getProjects().find(p => p.id === projectId)!;
+    const mockSurveys = project.mockSurveys.map(s => s.id === survey.id ? survey : s);
+    const updatedProject = { ...project, mockSurveys };
+    await this.updateProject(updatedProject);
+    return updatedProject;
+  }
+  async applySurveyFindingsToProject(projectId: string, surveyId: string, userName: string): Promise<Project> {
+    const project = this.getProjects().find(p => p.id === projectId)!;
+    const survey = project.mockSurveys.find(s => s.id === surveyId)!;
+    const failedItems = survey.results.filter(r => r.result === 'Fail');
+    const checklist = project.checklist.map(item => {
+        const finding = failedItems.find(f => f.checklistItemId === item.id);
+        if (finding) {
+            return {
+                ...item,
+                status: ComplianceStatus.NonCompliant,
+                actionPlan: finding.notes,
+            };
         }
-        this.offlineQueue = [];
-    }
-
-    // Getters
-    getProjects = (): Project[] => dataService.getProjects();
-    getUsers = (): User[] => dataService.getUsers();
-    getStandards = (): Standard[] => dataService.getStandards();
-    getDocuments = (): AppDocument[] => dataService.getDocuments();
-    getDepartments = (): Department[] => dataService.getDepartments();
-    getAccreditationPrograms = (): AccreditationProgram[] => dataService.getAccreditationPrograms();
-    getTrainingPrograms = (): TrainingProgram[] => dataService.getTrainingPrograms();
-    getCompetencies = (): Competency[] => dataService.getCompetencies();
-    getRisks = (): Risk[] => dataService.getRisks();
-    getIncidentReports = (): IncidentReport[] => dataService.getIncidentReports();
-    getAuditPlans = (): AuditPlan[] => dataService.getAuditPlans();
-    getAudits = (): Audit[] => dataService.getAudits();
-    getUserTrainingStatuses = (): { [userId: string]: UserTrainingStatus } => dataService.getUserTrainingStatuses();
-    getCertificates = (): CertificateData[] => dataService.getCertificates();
-    getCustomEvents = (): CustomCalendarEvent[] => dataService.getCustomEvents();
-    getNotifications = (userId: string): Notification[] => dataService.getNotifications().filter(n => n.userId === userId).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-    getAppSettings = (): AppSettings | null => dataService.getAppSettings();
-
-    // Authentication
-    authenticateUser(email: string, pass: string): User | null {
-        const user = this.getUsers().find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
-        return user || null;
-    }
-
-    // Projects
-    async createProject(newProjectData: any): Promise<Project> {
-        const standards = this.getStandards().filter(s => s.programId === newProjectData.programId);
-        const checklist: ChecklistItem[] = standards.flatMap(s =>
-            (s.subStandards && s.subStandards.length > 0)
-                ? s.subStandards.map(sub => ({
-                    id: `${s.standardId}-${sub.id}`,
-                    item: sub.description,
-                    standardId: s.standardId,
-                    status: ComplianceStatus.NonCompliant,
-                    assignedTo: null,
-                    dueDate: null,
-                    actionPlan: '',
-                    notes: '',
-                    evidenceFiles: [],
-                    comments: []
-                }))
-                : [{
-                    id: s.standardId,
-                    item: s.description,
-                    standardId: s.standardId,
-                    status: ComplianceStatus.NonCompliant,
-                    assignedTo: null,
-                    dueDate: null,
-                    actionPlan: '',
-                    notes: '',
-                    evidenceFiles: [],
-                    comments: []
-                }]
-        );
-
-        const newProject: Project = {
-            id: `proj-${Date.now()}`,
-            ...newProjectData,
-            projectLead: this.getUsers().find(u => u.id === newProjectData.leadId)!,
-            status: ProjectStatus.NotStarted,
-            progress: 0,
-            checklist,
-            activityLog: [],
-            mockSurveys: [],
-            capaReports: [],
-            designControls: [],
-        };
-        const projects = [...this.getProjects(), newProject];
-        await this._execute(() => dataService.setProjects(projects));
-        return newProject;
-    }
-
-    async updateProject(updatedProject: Project): Promise<Project> {
-        const projects = this.getProjects().map(p => p.id === updatedProject.id ? updatedProject : p);
-        await this._execute(() => dataService.setProjects(projects));
-        return updatedProject;
-    }
-
-    async deleteProject(projectId: string): Promise<void> {
-        const projects = this.getProjects().filter(p => p.id !== projectId);
-        await this._execute(() => dataService.setProjects(projects));
-    }
-
-    // Checklist & related
-    async addComment(projectId: string, checklistItemId: string, commentData: Omit<Comment, 'id'>): Promise<Project> {
-        const project = this.getProjects().find(p => p.id === projectId)!;
-        const checklist = project.checklist.map(item => {
-            if (item.id === checklistItemId) {
-                const newComment: Comment = { ...commentData, id: `comment-${Date.now()}` };
-                return { ...item, comments: [...item.comments, newComment] };
-            }
-            return item;
-        });
-        const updatedProject = { ...project, checklist };
-        await this.updateProject(updatedProject);
-        return updatedProject;
-    }
-
-    async addCapaReport(projectId: string, capaData: Omit<CAPAReport, 'id'>): Promise<Project> {
-        const project = this.getProjects().find(p => p.id === projectId)!;
-        const newCapa: CAPAReport = { ...capaData, id: `capa-${Date.now()}` };
-        const updatedProject = { ...project, capaReports: [...project.capaReports, newCapa] };
-        await this.updateProject(updatedProject);
-        return updatedProject;
-    }
-
-    async finalizeProject(projectId: string, userId: string, pass: string): Promise<Project> {
-        const user = this.getUsers().find(u => u.id === userId);
-        if (user?.password !== pass) throw new Error("Incorrect password");
-
-        const project = this.getProjects().find(p => p.id === projectId)!;
-        const updatedProject = {
-            ...project,
-            status: ProjectStatus.Finalized,
-            finalizedBy: user.name,
-            finalizationDate: new Date().toISOString()
-        };
-        await this.updateProject(updatedProject);
-        return updatedProject;
-    }
-
-    // Users
-    async addUser(userData: Omit<User, 'id'>): Promise<User> {
-        const newUser: User = { ...userData, id: `user-${Date.now()}`, trainingAssignments: [], competencies: [] };
-        const users = [...this.getUsers(), newUser];
-        await this._execute(() => dataService.setUsers(users));
-        return newUser;
-    }
-
-    async updateUser(updatedUser: User): Promise<User> {
-        const users = this.getUsers().map(u => u.id === updatedUser.id ? updatedUser : u);
-        await this._execute(() => dataService.setUsers(users));
-        return updatedUser;
-    }
-
-    async deleteUser(userId: string): Promise<void> {
-        const users = this.getUsers().filter(u => u.id !== userId);
-        await this._execute(() => dataService.setUsers(users));
-    }
-
-    // AI Service Wrappers
-    suggestActionPlan = (desc: string) => aiService.suggestActionPlan(desc);
-    suggestRootCause = (desc: string, notes: string) => aiService.suggestRootCause(desc, notes);
-    generatePolicyFromStandard = (standard: Standard, lang: 'en' | 'ar') => aiService.generatePolicyFromStandard(standard, lang);
-    improveWriting = (text: string, lang: 'en' | 'ar') => aiService.improveWriting(text, lang);
-    translateText = (text: string, lang: 'en' | 'ar') => aiService.translateText(text, lang);
-    generateQualityBriefing = (p: Project[], r: Risk[], u: User[], d: Department[], c: Competency[]) => aiService.generateQualityBriefing(p, r, u, d, c);
-
-    // Document Management
-    async uploadEvidenceDocument(projectId: string, checklistItemId: string, docData: { name: LocalizedString, uploadedFile: { name: string, type: string } }, uploaderName: string) {
-        const newDocument: AppDocument = {
-            id: `doc-${Date.now()}`,
-            name: docData.name,
-            type: 'Evidence',
-            isControlled: false,
-            status: 'Approved', // Evidence is auto-approved
-            content: { en: `File: ${docData.uploadedFile.name}`, ar: `ملف: ${docData.uploadedFile.name}` },
-            currentVersion: 1,
-            versionHistory: [{
-                version: 1,
-                date: new Date().toISOString(),
-                uploadedBy: uploaderName,
-                content: { en: `File: ${docData.uploadedFile.name}`, ar: `ملف: ${docData.uploadedFile.name}` }
-            }],
-            uploadedAt: new Date().toISOString(),
-        };
-        const documents = [...this.getDocuments(), newDocument];
-        await dataService.setDocuments(documents);
-
-        const project = this.getProjects().find(p => p.id === projectId)!;
-        const checklist = project.checklist.map(item => {
-            if (item.id === checklistItemId) {
-                return { ...item, evidenceFiles: [...item.evidenceFiles, newDocument.id] };
-            }
-            return item;
-        });
-        const updatedProject = { ...project, checklist };
-        await this.updateProject(updatedProject);
-
-        return { updatedProject, newDocument };
-    }
-
-    // Add other backend methods as needed...
-    async markNotificationAsRead(userId: string, notificationId: string): Promise<void> { }
-    async markAllNotificationsAsRead(userId: string): Promise<void> { }
-    async updateDesignControls(projectId: string, designControls: DesignControlItem[]): Promise<Project> {
-        const project = this.getProjects().find(p => p.id === projectId)!;
-        const updatedProject = { ...project, designControls };
-        await this.updateProject(updatedProject);
-        return updatedProject;
-    }
-    async generateProjectReport(project: Project, reportType: string, userName: string): Promise<AppDocument> {
-        const newDoc: AppDocument = {
-            id: `doc-report-${Date.now()}`,
-            name: { en: `${project.name} - Compliance Summary`, ar: `ملخص الامتثال - ${project.name}` },
-            type: 'Report',
-            isControlled: true,
-            status: 'Draft',
-            content: { en: `Report content for ${project.name}`, ar: `محتوى التقرير لمشروع ${project.name}` },
-            currentVersion: 1,
-            versionHistory: [],
-            uploadedAt: new Date().toISOString(),
-        };
-        const documents = [...this.getDocuments(), newDoc];
-        await dataService.setDocuments(documents);
-        return newDoc;
-    }
-    async updateCapa(projectId: string, updatedCapa: CAPAReport): Promise<Project> {
-        const project = this.getProjects().find(p => p.id === projectId)!;
-        const capaReports = project.capaReports.map(c => c.id === updatedCapa.id ? updatedCapa : c);
-        const updatedProject = { ...project, capaReports };
-        await this.updateProject(updatedProject);
-        return updatedProject;
-    }
-    async startMockSurvey(projectId: string, surveyorId: string): Promise<{ updatedProject: Project, newSurvey: MockSurvey }> {
-        const project = this.getProjects().find(p => p.id === projectId)!;
-        const newSurvey: MockSurvey = {
-            id: `survey-${Date.now()}`,
-            date: new Date().toISOString().split('T')[0],
-            surveyorId,
-            status: 'In Progress',
-            results: project.checklist.map(item => ({
-                checklistItemId: item.id,
-                result: 'Not Applicable',
-                notes: ''
-            }))
-        };
-        const updatedProject = { ...project, mockSurveys: [...project.mockSurveys, newSurvey] };
-        await this.updateProject(updatedProject);
-        return { updatedProject, newSurvey };
-    }
-    async updateMockSurvey(projectId: string, survey: MockSurvey): Promise<Project> {
-        const project = this.getProjects().find(p => p.id === projectId)!;
-        const mockSurveys = project.mockSurveys.map(s => s.id === survey.id ? survey : s);
-        const updatedProject = { ...project, mockSurveys };
-        await this.updateProject(updatedProject);
-        return updatedProject;
-    }
-    async applySurveyFindingsToProject(projectId: string, surveyId: string, userName: string): Promise<Project> {
-        const project = this.getProjects().find(p => p.id === projectId)!;
-        const survey = project.mockSurveys.find(s => s.id === surveyId)!;
-        const failedItems = survey.results.filter(r => r.result === 'Fail');
-        const checklist = project.checklist.map(item => {
-            const finding = failedItems.find(f => f.checklistItemId === item.id);
-            if (finding) {
-                return {
-                    ...item,
-                    status: ComplianceStatus.NonCompliant,
-                    actionPlan: finding.notes,
-                };
-            }
-            return item;
-        });
-        const updatedProject = { ...project, checklist };
-        await this.updateProject(updatedProject);
-        return updatedProject;
-    }
-
+        return item;
+    });
+    const updatedProject = { ...project, checklist };
+    await this.updateProject(updatedProject);
+    return updatedProject;
+  }
+  
     // And so on for all other data modification methods...
     // These would be implemented similarly, getting data from dataService,
     // modifying it, and then setting it back.
@@ -346,7 +346,7 @@ class BackendService {
         await dataService.setStandards(allStandards);
         return newStandards;
     }
-
+    
     // Other simple setters
     async updateDocument(doc: AppDocument): Promise<AppDocument> {
         const documents = this.getDocuments().map(d => d.id === doc.id ? doc : d);
@@ -370,7 +370,7 @@ class BackendService {
         await dataService.setDocuments(documents);
         return newDoc;
     }
-
+    
     async addProcessMap(data: { name: LocalizedString }): Promise<AppDocument> {
         const newDoc: AppDocument = {
             id: `procmap-${Date.now()}`,
@@ -407,14 +407,14 @@ class BackendService {
         await this.updateDocument(updatedDoc);
         return updatedDoc;
     }
-
+    
     async addDepartment(dept: Omit<Department, 'id'>): Promise<Department> {
         const newDept = { ...dept, id: `dept-${Date.now()}` };
         const depts = [...this.getDepartments(), newDept];
         await dataService.setDepartments(depts);
         return newDept;
     }
-
+    
     async updateDepartment(dept: Department): Promise<Department> {
         const depts = this.getDepartments().map(d => d.id === dept.id ? dept : d);
         await dataService.setDepartments(depts);
@@ -425,7 +425,7 @@ class BackendService {
         const depts = this.getDepartments().filter(d => d.id !== deptId);
         await dataService.setDepartments(depts);
     }
-
+    
     async addTrainingProgram(program: Omit<TrainingProgram, 'id'>): Promise<TrainingProgram> {
         const newProg = { ...program, id: `train-${Date.now()}` };
         const programs = [...this.getTrainingPrograms(), newProg];
@@ -445,12 +445,12 @@ class BackendService {
         const usersToUpdate = new Set<string>(data.userIds);
         if (data.departmentIds.length > 0) {
             this.getUsers().forEach(u => {
-                if (u.departmentId && data.departmentIds.includes(u.departmentId)) {
+                if(u.departmentId && data.departmentIds.includes(u.departmentId)) {
                     usersToUpdate.add(u.id);
                 }
             });
         }
-
+        
         const newAssignment = {
             trainingId: data.trainingId,
             assignedDate: new Date().toISOString(),
@@ -487,7 +487,7 @@ class BackendService {
         };
 
         let newCertificate: CertificateData | null = null;
-        if (passed) {
+        if(passed) {
             newCertificate = {
                 id: result.certificateId!,
                 userId,
@@ -504,12 +504,12 @@ class BackendService {
         const statuses = this.getUserTrainingStatuses();
         statuses[userId] = { ...statuses[userId], [trainingId]: result };
         await dataService.setUserTrainingStatuses(statuses);
-
+        
         return { result, newCertificate };
     }
-
+    
     async addCompetency(comp: Omit<Competency, 'id'>): Promise<Competency> {
-        const newComp = { ...comp, id: `comp-${Date.now()}` };
+        const newComp = { ...comp, id: `comp-${Date.now()}`};
         const comps = [...this.getCompetencies(), newComp];
         await dataService.setCompetencies(comps);
         return newComp;
@@ -523,7 +523,7 @@ class BackendService {
         const comps = this.getCompetencies().filter(c => c.id !== compId);
         await dataService.setCompetencies(comps);
     }
-
+    
     async addRisk(risk: Omit<Risk, 'id'>): Promise<Risk> {
         const newRisk = { ...risk, id: `risk-${Date.now()}` };
         const risks = [...this.getRisks(), newRisk];
@@ -539,7 +539,7 @@ class BackendService {
         const risks = this.getRisks().filter(r => r.id !== riskId);
         await dataService.setRisks(risks);
     }
-
+    
     async addIncidentReport(report: Omit<IncidentReport, 'id'>): Promise<IncidentReport> {
         const currentUser = useUserStore.getState().currentUser;
         const newReport: IncidentReport = { ...report, id: `incident-${Date.now()}`, reportedBy: currentUser!.id, correctiveActionIds: [] };
@@ -595,10 +595,10 @@ class BackendService {
     }
     // FIX: Add missing calendar event methods
     async addCustomEvent(eventData: Omit<CustomCalendarEvent, 'id' | 'type'>): Promise<CustomCalendarEvent> {
-        const newEvent = { ...eventData, type: 'Custom' as const, id: `event-${Date.now()}` };
-        const events = [...this.getCustomEvents(), newEvent];
-        await dataService.setCustomEvents(events);
-        return newEvent;
+      const newEvent = { ...eventData, type: 'Custom' as const, id: `event-${Date.now()}` };
+      const events = [...this.getCustomEvents(), newEvent];
+      await dataService.setCustomEvents(events);
+      return newEvent;
     }
     async updateCustomEvent(event: CustomCalendarEvent): Promise<CustomCalendarEvent> {
         const events = this.getCustomEvents().map(e => e.id === event.id ? event : e);

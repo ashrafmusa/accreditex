@@ -49,6 +49,7 @@ export const en = {
     hireDate: 'Hire Date',
     areYouSureDeleteUser: 'Are you sure you want to delete this user?',
     noUsersFound: 'No users found.',
+    lastAdminRoleUnchangeable: 'Cannot change the role of the last administrator.',
     // Accreditation Hub
     accreditationHubDescription: 'Manage all accreditation programs and their standards libraries.',
     createNewProgram: 'Create New Program',

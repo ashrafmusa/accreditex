@@ -9,9 +9,10 @@ interface UserModalProps {
   appSettings: AppSettings;
   onSave: (user: User | Omit<User, 'id'>) => void;
   onClose: () => void;
+  disableRoleChange?: boolean;
 }
 
-const UserModal: React.FC<UserModalProps> = ({ user, departments, appSettings, onSave, onClose }) => {
+const UserModal: React.FC<UserModalProps> = ({ user, departments, appSettings, onSave, onClose, disableRoleChange }) => {
   const { t, dir, lang } = useTranslation();
   const isEditMode = user !== null;
 
@@ -42,7 +43,7 @@ const UserModal: React.FC<UserModalProps> = ({ user, departments, appSettings, o
     }
   };
   
-  const inputClasses = "mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white";
+  const inputClasses = "mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 disabled:dark:bg-gray-800 disabled:cursor-not-allowed";
   const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300";
 
   return (
@@ -62,7 +63,7 @@ const UserModal: React.FC<UserModalProps> = ({ user, departments, appSettings, o
               </div>
               <div>
                   <label htmlFor="role" className={labelClasses}>{t('userRole')}</label>
-                  <select id="role" name="role" value={role} onChange={(e) => setRole(e.target.value as UserRole)} className={inputClasses}>
+                  <select id="role" name="role" value={role} onChange={(e) => setRole(e.target.value as UserRole)} className={inputClasses} disabled={disableRoleChange} title={disableRoleChange ? t('lastAdminRoleUnchangeable') : ''}>
                   {/* FIX: Correctly type the map function parameters. */}
                   {Object.values(UserRole).map((r) => (<option key={r} value={r}>{r}</option>))}
                   </select>

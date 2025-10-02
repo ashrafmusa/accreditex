@@ -19,6 +19,8 @@ const CapaStatusChart: React.FC<Props> = ({ projects }) => {
     return [{ name: t('open'), value: openCount }, { name: t('closed'), value: closedCount }];
   }, [projects, t]);
   
+  const totalCapas = useMemo(() => data.reduce((sum, entry) => sum + entry.value, 0), [data]);
+
   const COLORS = { [t('open')]: '#F97316', [t('closed')]: '#22C55E' };
   const tooltipStyle = {
     borderRadius: '0.5rem',
@@ -28,19 +30,27 @@ const CapaStatusChart: React.FC<Props> = ({ projects }) => {
   };
 
   return (
-    <div className="bg-brand-surface dark:bg-dark-brand-surface p-6 rounded-xl shadow-md border border-brand-border dark:border-dark-brand-border">
+    <div className="bg-brand-surface dark:bg-dark-brand-surface p-6 rounded-xl shadow-md border border-brand-border dark:border-dark-brand-border h-full flex flex-col">
       <h3 className="text-lg font-semibold mb-4 text-brand-text-primary dark:text-dark-brand-text-primary">{t('capaStatusAnalysis')}</h3>
-      {data.some(d => d.value > 0) ? (
-        <ResponsiveContainer width="100%" height={300}>
+      {totalCapas > 0 ? (
+        <div className="flex-grow">
+        <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={5} labelLine={false}>
               {data.map((entry) => <Cell key={`cell-${entry.name}`} fill={COLORS[entry.name]} />)}
             </Pie>
             <Tooltip contentStyle={tooltipStyle} />
             <Legend wrapperStyle={{ fontSize: '12px' }} />
+             <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" fill={theme === 'dark' ? '#e2e8f0' : '#0f172a'} fontSize="28" fontWeight="bold">
+                {totalCapas}
+            </text>
+            <text x="50%" y="50%" dy={22} textAnchor="middle" fill={theme === 'dark' ? '#94a3b8' : '#64748b'} fontSize="12">
+                {t('capaReports')}
+            </text>
           </PieChart>
         </ResponsiveContainer>
-      ) : <div className="flex items-center justify-center h-[300px]"><p className="text-brand-text-secondary dark:text-dark-brand-text-secondary">{t('noDataAvailable')}</p></div>}
+        </div>
+      ) : <div className="flex items-center justify-center flex-grow"><p className="text-brand-text-secondary dark:text-dark-brand-text-secondary">{t('noDataAvailable')}</p></div>}
     </div>
   );
 };

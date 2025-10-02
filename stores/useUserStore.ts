@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { User } from '../types';
 import { backendService } from '../services/BackendService';
+import { auth } from '../firebase/firebaseConfig';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 interface UserState {
   users: User[];
@@ -25,14 +27,20 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({ currentUser: user });
   },
   login: async (email, password) => {
-    // This is synchronous in the mock backend, but we keep it async for future-proofing
-    const user = backendService.authenticateUser(email, password);
-    if (user) {
-      set({ currentUser: user });
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // The auth state listener in useFirebaseAuth will handle setting the user.
+      // We can return the user from the store after the listener has run.
+      // A small delay helps ensure the state propagates from the listener.
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return get().currentUser;
+    } catch (error) {
+      console.error("Firebase login failed:", error);
+      return null;
     }
-    return user;
   },
   logout: () => {
+    signOut(auth);
     set({ currentUser: null });
   },
   addUser: async (newUserData) => {

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo } from 'react';
 // FIX: Corrected import path for types
 import { User, UserRole, NavigationState } from '../types';
@@ -43,6 +41,10 @@ const UsersPage: React.FC<UsersPageProps> = ({ setNavigation }) => {
   const usersWithDepartments = useMemo(() => 
     users.map(user => ({...user, department: departments.find(d => d.id === user.departmentId)})), 
   [users, departments]);
+
+  const isLastAdmin = useMemo(() => {
+    return users.filter(u => u.role === UserRole.Admin).length === 1;
+  }, [users]);
 
   if (!currentUser || !appSettings) {
     return null; // or a loading indicator
@@ -88,7 +90,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ setNavigation }) => {
         </div>
       </div>
       
-      {isModalOpen && (<UserModal user={editingUser} departments={departments} onSave={handleSaveUser} onClose={handleCloseModal} appSettings={appSettings}/>)}
+      {isModalOpen && (<UserModal user={editingUser} departments={departments} onSave={handleSaveUser} onClose={handleCloseModal} appSettings={appSettings} disableRoleChange={isLastAdmin && editingUser?.role === UserRole.Admin} />)}
     </div>
   );
 };

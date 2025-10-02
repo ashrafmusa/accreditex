@@ -1,5 +1,5 @@
-import React, { useState, FC, ReactNode } from "react";
-import { ChevronDownIcon } from "../icons";
+import React, { useState, FC, ReactNode } from 'react';
+import { ChevronDownIcon } from '../icons';
 
 interface SettingsCardProps {
   title: string;
@@ -9,13 +9,7 @@ interface SettingsCardProps {
   defaultOpen?: boolean;
 }
 
-const SettingsCard: FC<SettingsCardProps> = ({
-  title,
-  description,
-  children,
-  footer,
-  defaultOpen = true,
-}) => {
+const SettingsCard: FC<SettingsCardProps> = ({ title, description, children, footer, defaultOpen = true }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
@@ -26,17 +20,11 @@ const SettingsCard: FC<SettingsCardProps> = ({
         aria-expanded={isOpen}
       >
         <div className="flex-grow">
-          <h3 className="text-lg font-semibold text-brand-text-primary dark:text-dark-brand-text-primary">
-            {title}
-          </h3>
-          <p className="text-sm text-brand-text-secondary dark:text-dark-brand-text-secondary mt-1">
-            {description}
-          </p>
+          <h3 className="text-lg font-semibold text-brand-text-primary dark:text-dark-brand-text-primary">{title}</h3>
+          <p className="text-sm text-brand-text-secondary dark:text-dark-brand-text-secondary mt-1">{description}</p>
         </div>
         <ChevronDownIcon
-          className={`w-5 h-5 text-brand-text-secondary dark:text-dark-brand-text-secondary mt-1 flex-shrink-0 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`w-5 h-5 text-brand-text-secondary dark:text-dark-brand-text-secondary mt-1 flex-shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
       {isOpen && (

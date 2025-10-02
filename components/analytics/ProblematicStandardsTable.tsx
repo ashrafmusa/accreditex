@@ -1,5 +1,3 @@
-
-
 import React, { useMemo } from 'react';
 import { ChecklistItem, ComplianceStatus } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -28,39 +26,38 @@ const ProblematicStandardsTable: React.FC<Props> = ({ checklistItems }) => {
   const maxFailures = Math.max(...data.map(item => item.count), 0);
 
   return (
-    <div className="bg-brand-surface dark:bg-dark-brand-surface rounded-xl shadow-md border border-brand-border dark:border-dark-brand-border">
+    <div className="bg-brand-surface dark:bg-dark-brand-surface rounded-xl shadow-md border border-brand-border dark:border-dark-brand-border h-full flex flex-col">
       <div className="p-6 border-b dark:border-dark-brand-border">
         <h3 className="text-lg font-semibold text-brand-text-primary dark:text-dark-brand-text-primary">{t('top5ProblematicStandards')}</h3>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead className="bg-gray-50/50 dark:bg-gray-700/50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rtl:text-right">{t('standard')}</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rtl:text-right w-2/5">{t('failureCount')}</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white dark:bg-dark-brand-surface divide-y divide-gray-200 dark:divide-dark-brand-border">
-            {data.map((item) => (
-              <tr key={item.standard}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{item.standard}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <div className="flex items-center gap-4">
-                    <span className="font-bold text-red-600 w-8">{item.count}</span>
-                    <div className="w-full bg-red-100 dark:bg-red-900/30 rounded-full h-2.5">
-                      <div className="bg-red-500 h-2.5 rounded-full" style={{ width: `${maxFailures > 0 ? (item.count / maxFailures) * 100 : 0}%` }}></div>
+      <div className="overflow-x-auto flex-grow">
+        {data.length > 0 ? (
+            <table className="min-w-full">
+            <thead className="bg-gray-50/50 dark:bg-gray-700/50">
+                <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rtl:text-right">{t('standard')}</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rtl:text-right w-2/5">{t('failureCount')}</th>
+                </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-dark-brand-surface divide-y divide-gray-200 dark:divide-dark-brand-border">
+                {data.map((item) => (
+                <tr key={item.standard} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-primary cursor-pointer hover:underline">{item.standard}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <div className="flex items-center gap-4">
+                        <span className="font-bold text-red-600 w-8">{item.count}</span>
+                        <div className="w-full bg-red-100 dark:bg-red-900/30 rounded-full h-2.5">
+                        <div className="bg-red-500 h-2.5 rounded-full" style={{ width: `${maxFailures > 0 ? (item.count / maxFailures) * 100 : 0}%` }}></div>
+                        </div>
                     </div>
-                  </div>
-                </td>
-              </tr>
-            ))}
-             {data.length === 0 && (
-              <tr>
-                  <td colSpan={2} className="text-center py-8 text-brand-text-secondary dark:text-dark-brand-text-secondary">{t('noDataAvailable')}</td>
-              </tr>
-             )}
-          </tbody>
-        </table>
+                    </td>
+                </tr>
+                ))}
+            </tbody>
+            </table>
+        ) : (
+            <div className="flex items-center justify-center h-full"><p className="text-brand-text-secondary dark:text-dark-brand-text-secondary">{t('noDataAvailable')}</p></div>
+        )}
       </div>
     </div>
   );

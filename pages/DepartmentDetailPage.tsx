@@ -101,7 +101,8 @@ const DepartmentDetailPage: React.FC<DepartmentDetailPageProps> = ({ department,
                         <DepartmentUserList users={usersInDept} />
                     </div>
                     <div className="lg:col-span-2">
-                       <DepartmentalPerformanceChart projects={projects} departments={[department]} users={usersInDept} />
+                       {/* FIX: Pass the setNavigation prop to DepartmentalPerformanceChart. */}
+                       <DepartmentalPerformanceChart projects={projects} departments={[department]} users={usersInDept} setNavigation={setNavigation} />
                     </div>
                 </div>
                 

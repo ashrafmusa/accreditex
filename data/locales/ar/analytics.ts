@@ -18,4 +18,6 @@ export const ar = {
     capaResolutionRate: 'معدل إغلاق الإجراءات التصحيحية',
     capaStatusAnalysis: 'تحليل حالة الإجراءات التصحيحية',
     totalTasksTooltip: 'إجمالي المهام',
+    controlPanel: 'لوحة التحكم',
+    barChartTooltip: 'انقر على الشريط لعرض تفاصيل القسم',
 };
