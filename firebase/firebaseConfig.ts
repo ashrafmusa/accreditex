@@ -1,23 +1,26 @@
-// Import the functions you need from the SDKs you need
-// FIX: Use compat library for initialization to resolve missing 'initializeApp' export.
-import firebase from "firebase/compat/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+// Firebase configuration using the modular SDK and environment variables
+// This file exports the initialized app, auth, and firestore instances.
 
-// TODO: Replace with your app's Firebase project configuration.
-// You can get this from the Firebase Console: Project settings > General > Your apps > Web app
+import { initializeApp, getApps } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+
+// Read config from Vite environment variables (set in .env.local)
 const firebaseConfig = {
-  apiKey: "AIzaSyBPkTWdojLlQBG7E9OPWCXPZ_Zzg31YrLg",
-  authDomain: "accreditex-79c08.firebaseapp.com",
-  projectId: "accreditex-79c08",
-  storageBucket: "accreditex-79c08.firebasestorage.app",
-  messagingSenderId: "600504438909",
-  appId: "1:600504438909:web:5e25200e69243a615e2114",
-  measurementId: "G-41932M9TKF"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY as string,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID as string,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID as string,
+  // Optional: analytics measurement ID (web-only). Not used here to avoid Electron issues.
+  measurementId: (import.meta.env.VITE_FIREBASE_MEASUREMENT_ID as string) || undefined,
 };
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
 
-// Export the auth and firestore services
+// Initialize or reuse existing app instance
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+
+// Export services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export { app };

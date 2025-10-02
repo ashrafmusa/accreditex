@@ -3,7 +3,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import { useUserStore } from '../stores/useUserStore';
-import { User } from '../types';
+import { User, UserRole } from '../types';
 
 export function useFirebaseAuth() {
   const setCurrentUser = useUserStore(state => state.setCurrentUser);
@@ -12,20 +12,35 @@ export function useFirebaseAuth() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // User is signed in.
-        // Fetch the user's profile from Firestore to get their role and other app-specific data.
-        // Assumes you have a 'users' collection where the document ID is the user's Firebase UID.
         const userDocRef = doc(db, 'users', firebaseUser.uid);
         const userDocSnap = await getDoc(userDocRef);
 
         if (userDocSnap.exists()) {
-          const userData = userDocSnap.data() as User;
+          const raw = userDocSnap.data() as Partial<User>;
+          const userData: User = {
+            id: raw.id || firebaseUser.uid,
+            name: raw?.name || firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'User'),
+            email: raw?.email || firebaseUser.email || '',
+            role: raw?.role || UserRole.TeamMember,
+            departmentId: raw?.departmentId,
+            jobTitle: raw?.jobTitle,
+            hireDate: raw?.hireDate,
+            competencies: raw?.competencies || [],
+            trainingAssignments: raw?.trainingAssignments || [],
+            readAndAcknowledge: raw?.readAndAcknowledge || []
+          };
           setCurrentUser(userData);
         } else {
-          // This case should ideally not happen if user profiles are created upon sign-up.
-          // Handle it by logging out the user to prevent an inconsistent state.
-          console.error("User document not found in Firestore for UID:", firebaseUser.uid);
-          logout();
+          // Fallback to a minimal user constructed from Firebase auth, so the app remains usable.
+          const fallbackUser: User = {
+            id: firebaseUser.uid,
+            name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'User'),
+            email: firebaseUser.email || '',
+            role: UserRole.TeamMember,
+            competencies: [],
+            trainingAssignments: [],
+          };
+          setCurrentUser(fallbackUser);
         }
       } else {
         // User is signed out.
