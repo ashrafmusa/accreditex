@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { NavigationState, ProjectStatus, CAPAReport, ComplianceStatus } from '../../types';
 import { CheckCircleIcon, ExclamationTriangleIcon, FolderIcon, PlayCircleIcon, CalendarDaysIcon } from '../icons';
@@ -43,6 +43,8 @@ const PieTooltip = ({ active, payload, total, t }: any) => {
 const AdminDashboard: React.FC<DashboardPageProps> = ({ setNavigation }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
+  const [showComplianceTable, setShowComplianceTable] = useState(false);
+  const [showStatusTable, setShowStatusTable] = useState(false);
   
   const projects = useProjectStore(state => state.projects);
   const { users } = useUserStore();
@@ -118,8 +120,17 @@ const AdminDashboard: React.FC<DashboardPageProps> = ({ setNavigation }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        <div className="lg:col-span-3 bg-brand-surface dark:bg-dark-brand-surface p-6 rounded-xl shadow-lg border border-brand-border dark:border-dark-brand-border">
-            <h3 className="text-lg font-semibold text-brand-text-primary dark:text-dark-brand-text-primary mb-4">{t('projectComplianceRate')}</h3>
+        <div role="region" aria-label="Project compliance rate chart" className="lg:col-span-3 bg-brand-surface dark:bg-dark-brand-surface p-6 rounded-xl shadow-lg border border-brand-border dark:border-dark-brand-border">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-brand-text-primary dark:text-dark-brand-text-primary">{t('projectComplianceRate')}</h3>
+              <button
+                className="text-xs px-3 py-1.5 rounded-md border border-brand-border dark:border-dark-brand-border hover:bg-slate-50 dark:hover:bg-slate-800"
+                onClick={() => setShowComplianceTable(v => !v)}
+                aria-pressed={showComplianceTable}
+              >
+                {showComplianceTable ? t('hideTable') : t('viewAsTable')}
+              </button>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={dashboardData.complianceChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }} onClick={handleBarClick}>
                     <defs><linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#818cf8" stopOpacity={0.8}/><stop offset="95%" stopColor="#4f46e5" stopOpacity={1}/></linearGradient></defs>
@@ -129,10 +140,39 @@ const AdminDashboard: React.FC<DashboardPageProps> = ({ setNavigation }) => {
                     <Bar dataKey="compliance" fill="url(#barGradient)" name={t('complianceRate')} barSize={30} radius={[4, 4, 0, 0]} style={{ cursor: 'pointer' }} />
                 </BarChart>
             </ResponsiveContainer>
+            {showComplianceTable && (
+              <div className="mt-4 overflow-x-auto" role="region" aria-label="Project compliance data table">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-brand-text-secondary dark:text-dark-brand-text-secondary">
+                      <th className="px-2 py-1">{t('project')}</th>
+                      <th className="px-2 py-1">{t('complianceRate')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dashboardData.complianceChartData.map((row: any) => (
+                      <tr key={row.id} className="border-t border-brand-border dark:border-dark-brand-border">
+                        <td className="px-2 py-1" title={row.name}>{row.name}</td>
+                        <td className="px-2 py-1">{row.compliance}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
         </div>
 
-        <div className="lg:col-span-2 bg-brand-surface dark:bg-dark-brand-surface p-6 rounded-xl shadow-lg border border-brand-border dark:border-dark-brand-border">
-            <h3 className="text-lg font-semibold text-brand-text-primary dark:text-dark-brand-text-primary mb-4">{t('projectStatusDistribution')}</h3>
+        <div role="region" aria-label="Project status distribution chart" className="lg:col-span-2 bg-brand-surface dark:bg-dark-brand-surface p-6 rounded-xl shadow-lg border border-brand-border dark:border-dark-brand-border">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-brand-text-primary dark:text-dark-brand-text-primary">{t('projectStatusDistribution')}</h3>
+              <button
+                className="text-xs px-3 py-1.5 rounded-md border border-brand-border dark:border-dark-brand-border hover:bg-slate-50 dark:hover:bg-slate-800"
+                onClick={() => setShowStatusTable(v => !v)}
+                aria-pressed={showStatusTable}
+              >
+                {showStatusTable ? t('hideTable') : t('viewAsTable')}
+              </button>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                     <Pie data={dashboardData.pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={5}>
@@ -148,6 +188,31 @@ const AdminDashboard: React.FC<DashboardPageProps> = ({ setNavigation }) => {
                     </text>
                 </PieChart>
             </ResponsiveContainer>
+            {showStatusTable && (
+              <div className="mt-4 overflow-x-auto" role="region" aria-label="Project status data table">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-brand-text-secondary dark:text-dark-brand-text-secondary">
+                      <th className="px-2 py-1">{t('status')}</th>
+                      <th className="px-2 py-1">{t('count')}</th>
+                      <th className="px-2 py-1">%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dashboardData.pieChartData.map((row: any) => {
+                      const percent = dashboardData.totalProjects > 0 ? Math.round((row.value / dashboardData.totalProjects) * 100) : 0;
+                      return (
+                        <tr key={row.name} className="border-top border-brand-border dark:border-dark-brand-border">
+                          <td className="px-2 py-1">{row.name}</td>
+                          <td className="px-2 py-1">{row.value}</td>
+                          <td className="px-2 py-1">{percent}%</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
         </div>
       </div>
       

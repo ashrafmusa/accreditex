@@ -1,16 +1,11 @@
-
-
-import React, { useState } from 'react';
-import { User } from '../types';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from '../hooks/useTranslation';
 import { EyeIcon, EyeSlashIcon, LogoIcon, ExclamationTriangleIcon, SpinnerIcon } from '../components/icons';
 import { useUserStore } from '../stores/useUserStore';
 import { useAppStore } from '../stores/useAppStore';
 import Globe from '../components/ui/Globe';
 
-interface LoginPageProps {
-  // onLogin prop is no longer needed
-}
+interface LoginPageProps {}
 
 const LoginPage: React.FC<LoginPageProps> = () => {
   const { t, dir } = useTranslation();
@@ -22,6 +17,20 @@ const LoginPage: React.FC<LoginPageProps> = () => {
   const login = useUserStore((state) => state.login);
   const appSettings = useAppStore((state) => state.appSettings);
 
+  const policy = appSettings?.passwordPolicy;
+  const isEmailValid = useMemo(() => /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email), [email]);
+  const passwordChecks = useMemo(() => {
+    if (!policy) return { score: 0, unmet: [] as string[] };
+    const unmet: string[] = [];
+    let score = 0;
+    if (password.length >= policy.minLength) score++; else unmet.push(`${policy.minLength}+ ${t('characters')}`);
+    if (!policy.requireUppercase || /[A-Z]/.test(password)) score++; else unmet.push(t('oneUppercase'));
+    if (!policy.requireNumber || /[0-9]/.test(password)) score++; else unmet.push(t('oneNumber'));
+    if (!policy.requireSymbol || /[^A-Za-z0-9]/.test(password)) score++; else unmet.push(t('oneSymbol'));
+    return { score, unmet };
+  }, [password, policy, t]);
+  const strengthColor = ['bg-red-500', 'bg-yellow-500', 'bg-blue-500', 'bg-green-600'][Math.min(passwordChecks.score, 3)];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -31,36 +40,38 @@ const LoginPage: React.FC<LoginPageProps> = () => {
       if (!user) {
         setError(t('invalidCredentials'));
       }
-      // onLogin is no longer needed here; the auth listener handles the UI change.
+      // Auth listener handles UI changes post-login.
     } finally {
       setLoading(false);
     }
   };
-  
+
   if (!appSettings) {
-    return null; // Or a loading state
+    return null; // Or a screen-level loader
   }
-  
+
   const globeSettings = appSettings.globeSettings;
   const userLocation = { lat: 24.7136, long: 46.6753 }; // Riyadh, Saudi Arabia
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
       {/* Left Side: Form */}
       <div className="flex flex-col justify-center items-center p-8 relative z-10">
         <div className="w-full max-w-sm">
           <div className="bg-brand-surface dark:bg-dark-brand-surface p-10 rounded-2xl shadow-2xl border border-brand-border dark:border-dark-brand-border animate-[fadeInUp_0.5s_ease-out]">
-              <div className="flex flex-col items-center text-center gap-3 mb-8 animate-[scaleIn_0.5s_ease-out]">
-                  {appSettings?.logoUrl ? (
-                    <img src={appSettings.logoUrl} alt="App Logo" className="h-12 w-12" />
-                  ) : (
-                    <LogoIcon className="h-12 w-12 text-brand-primary" />
-                  )}
-                  <h1 className="text-3xl font-bold">
-                      <span className="text-brand-text-primary dark:text-dark-brand-text-primary">Accredit</span><span className="text-brand-primary">Ex</span>
-                  </h1>
-              </div>
-            <form onSubmit={handleSubmit} className="space-y-6" dir={dir} aria-describedby={error ? 'login-error' : undefined}>
+            <div className="flex flex-col items-center text-center gap-3 mb-8 animate-[scaleIn_0.5s_ease-out]">
+              {appSettings?.logoUrl ? (
+                <img src={appSettings.logoUrl} alt="App Logo" className="h-12 w-12" />
+              ) : (
+                <LogoIcon className="h-12 w-12 text-brand-primary" />
+              )}
+              <h1 className="text-3xl font-bold">
+                <span className="text-brand-text-primary dark:text-dark-brand-text-primary">Accredit</span>
+                <span className="text-brand-primary">Ex</span>
+              </h1>
+            </div>
+
+            <form onSubmit={handleSubmit} noValidate className="space-y-6" dir={dir} aria-describedby={error ? 'login-error' : undefined}>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t('emailAddress')}
@@ -75,7 +86,8 @@ const LoginPage: React.FC<LoginPageProps> = () => {
                     autoFocus
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-800 dark:text-white"
+                    aria-invalid={!isEmailValid}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-800 dark:text-white"
                   />
                 </div>
               </div>
@@ -93,33 +105,63 @@ const LoginPage: React.FC<LoginPageProps> = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-800 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-brand-primary focus:border-brand-primary sm:text-sm bg-white dark:bg-gray-800 dark:text-white"
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400">
-                      {showPassword ? <EyeSlashIcon className="h-5 w-5"/> : <EyeIcon className="h-5 w-5"/>}
+                  <button
+                    type="button"
+                    aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+                    aria-pressed={showPassword}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-brand-primary"
+                  >
+                    {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                   </button>
                 </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input id="remember-me" name="remember-me" type="checkbox" className="h-4 w-4 text-brand-primary focus:ring-brand-primary border-gray-300 rounded"/>
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-200">{t('rememberMe')}</label>
-                </div>
-                <div className="text-sm"><a href="#" className="font-medium text-brand-primary hover:text-indigo-500">{t('forgotPassword')}</a></div>
+                {policy && password.length > 0 && (
+                  <div className="mt-2 space-y-2" aria-live="polite">
+                    <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div className={`h-full ${strengthColor} transition-all`} style={{ width: `${(passwordChecks.score / 4) * 100}%` }} />
+                    </div>
+                    <div className="text-xs text-brand-text-secondary dark:text-dark-brand-text-secondary flex flex-wrap gap-2">
+                      {passwordChecks.unmet.length === 0 ? (
+                        <span className="text-green-600 dark:text-green-400">{t('passwordLooksGood') || 'Password looks good'}</span>
+                      ) : (
+                        passwordChecks.unmet.map((u, i) => (
+                          <span key={i} className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                            {u}
+                          </span>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {error && 
-                <div id="login-error" role="alert" className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-3 flex items-center gap-3 animate-[fadeIn_0.3s_ease-out]">
-                    <ExclamationTriangleIcon className="h-5 w-5 text-red-600 dark:text-red-300"/>
-                    <p className="text-sm text-red-700 dark:text-red-200">{error}</p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input id="remember-me" name="remember-me" type="checkbox" className="h-4 w-4 text-brand-primary focus:ring-brand-primary border-gray-300 rounded" />
+                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-200">
+                    {t('rememberMe')}
+                  </label>
                 </div>
-              }
+                <div className="text-sm">
+                  <a href="#" className="font-medium text-brand-primary hover:text-indigo-500" title={t('forgotPassword')}>
+                    {t('forgotPassword')}
+                  </a>
+                </div>
+              </div>
+
+              {error && (
+                <div id="login-error" role="alert" aria-live="assertive" className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-3 flex items-center gap-3 animate-[fadeIn_0.3s_ease-out]">
+                  <ExclamationTriangleIcon className="h-5 w-5 text-red-600 dark:text-red-300" />
+                  <p className="text-sm text-red-700 dark:text-red-200">{error}</p>
+                </div>
+              )}
 
               <div>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !isEmailValid}
                   className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary disabled:bg-indigo-400"
                 >
                   {loading ? <SpinnerIcon className="animate-spin h-5 w-5 text-white" /> : t('loginButton')}
@@ -129,16 +171,11 @@ const LoginPage: React.FC<LoginPageProps> = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Right Side: Globe */}
       <div className="hidden lg:flex relative items-center justify-center p-8 dot-grid overflow-hidden">
         <div className="w-[700px] h-[700px] max-w-full max-h-full">
-            <Globe 
-                width={700}
-                height={700}
-                {...globeSettings}
-                userLocation={userLocation}
-            />
+          <Globe width={700} height={700} {...globeSettings} userLocation={userLocation} />
         </div>
       </div>
     </div>

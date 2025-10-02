@@ -15,9 +15,10 @@ import initialTrainings from '../data/trainings.json';
 import initialSettings from '../data/settings.json';
 import initialCompetencies from '../data/competencies.json';
 import initialRisks from '../data/risks.json';
+import smcsRaw from '../SMCS SATool (2).json';
 
 const DB_KEY = 'accreditex_db';
-const SEED_FLAG_KEY = 'accreditex_db_seeded_v2';
+const SEED_FLAG_KEY = 'accreditex_db_seeded_v3';
 
 interface AppDatabase {
   projects: Project[];
@@ -57,6 +58,59 @@ const defaultAppSettings: AppSettings = {
   },
 };
 
+// Convert the SMCS SATool JSON into app Standards for a single accreditation program.
+function convertSMCS(smcs: any, programId: string): Standard[] {
+  const standardsMap = new Map<string, Standard>();
+  let currentChapter = '';
+  const getText = (row: any) => row.Column2 || row["Column2"] || '';
+  const getIdCell = (row: any) => (row[" Quality Assurance Center "] || '').trim();
+  const normalizeId = (id: string) => id.replace(/^SMCS(\d+)/, 'SMCS.$1').replace(/^SMCS\s*(\d+)/, 'SMCS.$1').replace(/\s+$/, '');
+
+  for (const [sectionKey, rows] of Object.entries(smcs)) {
+    if (!Array.isArray(rows)) continue;
+    for (const row of rows as any[]) {
+      const idCell = getIdCell(row);
+      if (!idCell) {
+        if (getText(row)) {
+          currentChapter = getText(row);
+        }
+        continue;
+      }
+      const id = normalizeId(idCell);
+      const stdMatch = id.match(/^SMCS\.(\d+)\s*$/);
+      const epMatch = id.match(/^SMCS\.(\d+)\.([a-z])$/i);
+      if (stdMatch) {
+        const stdId = `SMCS.${stdMatch[1]}`;
+        const description = getText(row) || '';
+        standardsMap.set(stdId, {
+          programId,
+          standardId: stdId,
+          description,
+          section: currentChapter || 'SMCS',
+          subStandards: []
+        });
+      } else if (epMatch) {
+        const stdId = `SMCS.${epMatch[1]}`;
+        const subId = `${stdId}.${epMatch[2]}`;
+        const parent = standardsMap.get(stdId);
+        if (parent) {
+          parent.subStandards = parent.subStandards || [];
+          parent.subStandards.push({ id: subId, description: getText(row) || '' });
+        } else {
+          standardsMap.set(stdId, {
+            programId,
+            standardId: stdId,
+            description: '',
+            section: currentChapter || 'SMCS',
+            subStandards: [{ id: subId, description: getText(row) || '' }]
+          });
+        }
+      }
+    }
+  }
+  return Array.from(standardsMap.values());
+}
+
 class DataService {
   private db: AppDatabase = this.loadDatabase();
 
@@ -94,21 +148,27 @@ class DataService {
   public async initialize(): Promise<void> {
     const isSeeded = localStorage.getItem(SEED_FLAG_KEY);
     if (!isSeeded) {
-      console.log("Seeding database from JSON files...");
+      console.log("Seeding database for fresh start with SMCS standards...");
+      const program: AccreditationProgram = {
+        id: 'prog-oman-smcs',
+        name: 'OMAN HEALTHCARE ACCREDITATION PROGRAM',
+        description: { en: 'Specialized Medical Care Services (SMCS)', ar: 'خدمات الرعاية الطبية المتخصصة (SMCS)' }
+      };
+      const smcsStandards = convertSMCS(smcsRaw as any, program.id);
       this.db = {
-        projects: initialProjects as Project[],
-        users: initialUsers.map(u => ({ ...u, password: 'password123' })) as User[],
-        standards: initialStandards as Standard[],
-        documents: initialDocuments as AppDocument[],
-        departments: initialDepartments as Department[],
-        accreditationPrograms: initialPrograms as AccreditationProgram[],
-        trainingPrograms: initialTrainings as TrainingProgram[],
+        projects: [],
+        users: [],
+        standards: smcsStandards as Standard[],
+        documents: [],
+        departments: [],
+        accreditationPrograms: [program],
+        trainingPrograms: [],
         certificates: [],
         customEvents: [],
         notifications: [],
         appSettings: defaultAppSettings,
-        competencies: initialCompetencies as Competency[],
-        risks: initialRisks as Risk[],
+        competencies: [],
+        risks: [],
         incidentReports: [],
         auditPlans: [],
         audits: [],
