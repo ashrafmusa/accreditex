@@ -14,7 +14,7 @@ interface DashboardPageProps {
 }
 
 const DashboardPage: React.FC<DashboardPageProps> = ({ setNavigation }) => {
-  console.log("DEBUG: Rendering DashboardPage");
+  if (import.meta.env?.DEV) console.log("DEBUG: Rendering DashboardPage");
   const { currentUser } = useUserStore();
   const { t } = useTranslation();
 

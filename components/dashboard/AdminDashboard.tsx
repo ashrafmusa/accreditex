@@ -26,6 +26,20 @@ const CustomTooltip = ({ active, payload, label, t }: any) => {
     return null;
   };
 
+const PieTooltip = ({ active, payload, total, t }: any) => {
+    if (active && payload && payload.length) {
+      const { name, value } = payload[0].payload;
+      const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+      return (
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-lg">
+          <p className="font-semibold text-brand-text-primary dark:text-dark-brand-text-primary">{name}</p>
+          <p className="text-sm text-brand-primary dark:text-brand-primary">{`${t('count')}: ${value} (${percent}%)`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
 const AdminDashboard: React.FC<DashboardPageProps> = ({ setNavigation }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -124,7 +138,7 @@ const AdminDashboard: React.FC<DashboardPageProps> = ({ setNavigation }) => {
                     <Pie data={dashboardData.pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={5}>
                         {dashboardData.pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />)}
                     </Pie>
-                    <Tooltip content={<CustomTooltip t={t} />} />
+                    <Tooltip content={<PieTooltip total={dashboardData.totalProjects} t={t} />} />
                     <Legend wrapperStyle={{ fontSize: '12px' }} />
                     <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" fill={theme === 'dark' ? '#FFF' : '#000'} fontSize="24" fontWeight="bold">
                       {dashboardData.totalProjects}
