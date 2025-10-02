@@ -40,6 +40,21 @@ const PieTooltip = ({ active, payload, total, t }: any) => {
     return null;
   };
 
+// Custom XAxis tick with title tooltip for full project name
+const CustomTick = (props: any) => {
+  const { x, y, payload, style } = props;
+  const display = payload.value;
+  const full = payload.payload?.fullName || display;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text dy={16} textAnchor="middle" fill={style?.fill} fontSize={style?.fontSize}>
+        {display}
+        <title>{full}</title>
+      </text>
+    </g>
+  );
+};
+
 const AdminDashboard: React.FC<DashboardPageProps> = ({ setNavigation }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -77,6 +92,7 @@ const AdminDashboard: React.FC<DashboardPageProps> = ({ setNavigation }) => {
 
     const complianceChartData = projects.map(project => ({
         name: project.name.length > 15 ? project.name.substring(0, 15) + '...' : project.name,
+        fullName: project.name,
         compliance: parseFloat(project.progress.toFixed(1)),
         id: project.id
     }));
@@ -135,7 +151,7 @@ const AdminDashboard: React.FC<DashboardPageProps> = ({ setNavigation }) => {
                 <BarChart data={dashboardData.complianceChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }} onClick={handleBarClick}>
                     <defs><linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#818cf8" stopOpacity={0.8}/><stop offset="95%" stopColor="#4f46e5" stopOpacity={1}/></linearGradient></defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme === 'dark' ? 'rgba(128,128,128,0.1)' : 'rgba(128,128,128,0.2)'} />
-                    <XAxis dataKey="name" tick={tickStyle} /><YAxis unit="%" tick={tickStyle} />
+                    <XAxis dataKey="name" tick={<CustomTick style={tickStyle} />} /><YAxis unit="%" tick={tickStyle} />
                     <Tooltip content={<CustomTooltip t={t} />} cursor={{fill: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : 'rgba(226, 232, 240, 0.4)'}} />
                     <Bar dataKey="compliance" fill="url(#barGradient)" name={t('complianceRate')} barSize={30} radius={[4, 4, 0, 0]} style={{ cursor: 'pointer' }} />
                 </BarChart>

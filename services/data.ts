@@ -38,6 +38,7 @@ interface AppDatabase {
   auditPlans: AuditPlan[];
   audits: Audit[];
   userTrainingStatuses: { [userId: string]: UserTrainingStatus };
+  smcsValidationReport: any | null;
 }
 
 const defaultAppSettings: AppSettings = {
@@ -111,6 +112,111 @@ function convertSMCS(smcs: any, programId: string): Standard[] {
   return Array.from(standardsMap.values());
 }
 
+// Convert and validate SMCS SATool JSON to standards and produce a validation report
+function convertAndValidateSMCS(smcs: any, programId: string): { standards: Standard[]; report: any } {
+  const standardsMap = new Map<string, Standard>();
+  const totalsMap = new Map<string, number>();
+  let currentChapter = '';
+  const getText = (row: any) => row.Column2 || row["Column2"] || '';
+  const getIdCell = (row: any) => (row[" Quality Assurance Center "] || '').trim();
+  const normalizeId = (id: string) => id.replace(/^SMCS(\d+)/, 'SMCS.$1').replace(/^SMCS\s*(\d+)/, 'SMCS.$1').replace(/\s+$/, '');
+
+  for (const [, rows] of Object.entries(smcs)) {
+    if (!Array.isArray(rows)) continue;
+    for (const row of rows as any[]) {
+      const idCell = getIdCell(row);
+      if (!idCell) {
+        if (getText(row)) currentChapter = getText(row);
+        continue;
+      }
+      const id = normalizeId(idCell);
+      const stdMatch = id.match(/^SMCS\.(\d+)\s*$/);
+      const epMatch = id.match(/^SMCS\.(\d+)\.([a-z])$/i);
+      if (stdMatch) {
+        const stdId = `SMCS.${stdMatch[1]}`;
+        const description = getText(row) || '';
+        const c3 = (row.Column3 || row["Column3"] || '') as string;
+        const m = /Total\s*Measures\s*:\s*(\d+)/i.exec(c3);
+        if (m) totalsMap.set(stdId, parseInt(m[1], 10));
+        standardsMap.set(stdId, {
+          programId,
+          standardId: stdId,
+          description,
+          section: currentChapter || 'SMCS',
+          subStandards: []
+        });
+      } else if (epMatch) {
+        const stdId = `SMCS.${epMatch[1]}`;
+        const subId = `${stdId}.${epMatch[2]}`;
+        const parent = standardsMap.get(stdId);
+        if (parent) {
+          parent.subStandards = parent.subStandards || [];
+          parent.subStandards.push({ id: subId, description: getText(row) || '' });
+        } else {
+          standardsMap.set(stdId, {
+            programId,
+            standardId: stdId,
+            description: '',
+            section: currentChapter || 'SMCS',
+            subStandards: [{ id: subId, description: getText(row) || '' }]
+          });
+        }
+      }
+    }
+  }
+
+  const standards = Array.from(standardsMap.values());
+
+  const mismatches: { standardId: string; section?: string; parsedTotal?: number; epCount: number }[] = [];
+  const duplicateDetails: { standardId: string; subId: string; description: string }[] = [];
+
+  for (const std of standards) {
+    const epCount = (std.subStandards || []).length;
+    const parsedTotal = totalsMap.get(std.standardId);
+    if (typeof parsedTotal === 'number' && parsedTotal !== epCount) {
+      mismatches.push({ standardId: std.standardId, section: std.section, parsedTotal, epCount });
+    }
+    const seen = new Map<string, string[]>();
+    for (const ep of std.subStandards || []) {
+      const key = (ep.description || '').trim().toLowerCase();
+      if (!key) continue;
+      const arr = seen.get(key) || [];
+      arr.push(ep.id);
+      seen.set(key, arr);
+    }
+    for (const [descKey, ids] of seen.entries()) {
+      if (ids.length > 1) {
+        ids.forEach(id => duplicateDetails.push({ standardId: std.standardId, subId: id, description: descKey }));
+      }
+    }
+  }
+
+  const csvLines = [
+    'standardId,section,parsedTotal,epCount,duplicateDescriptionsCount'
+  ];
+  for (const std of standards) {
+    const epCount = (std.subStandards || []).length;
+    const parsedTotal = totalsMap.get(std.standardId) ?? '';
+    const dupCount = new Set(duplicateDetails.filter(d => d.standardId === std.standardId).map(d => d.description)).size;
+    const sec = (std.section || '').replace(/[,\n]/g, ' ');
+    csvLines.push(`${std.standardId},${sec},${parsedTotal},${epCount},${dupCount}`);
+  }
+
+  const report = {
+    createdAt: new Date().toISOString(),
+    summary: {
+      totalStandards: standards.length,
+      mismatchedCount: mismatches.length,
+      duplicatesCount: duplicateDetails.length,
+    },
+    mismatches,
+    duplicates: duplicateDetails,
+    csv: csvLines.join('\n')
+  };
+
+  return { standards, report };
+}
+
 class DataService {
   private db: AppDatabase = this.loadDatabase();
 
@@ -138,6 +244,7 @@ class DataService {
       auditPlans: [],
       audits: [],
       userTrainingStatuses: {},
+      smcsValidationReport: null,
     };
   }
 
@@ -154,7 +261,7 @@ class DataService {
         name: 'OMAN HEALTHCARE ACCREDITATION PROGRAM',
         description: { en: 'Specialized Medical Care Services (SMCS)', ar: 'خدمات الرعاية الطبية المتخصصة (SMCS)' }
       };
-      const smcsStandards = convertSMCS(smcsRaw as any, program.id);
+      const { standards: smcsStandards, report: smcsReport } = convertAndValidateSMCS(smcsRaw as any, program.id);
       this.db = {
         projects: [],
         users: [],
@@ -173,6 +280,7 @@ class DataService {
         auditPlans: [],
         audits: [],
         userTrainingStatuses: {},
+        smcsValidationReport: smcsReport,
       };
       this.saveDatabase();
       localStorage.setItem(SEED_FLAG_KEY, 'true');
@@ -218,6 +326,30 @@ class DataService {
   // Data Management
   exportAllData = (): string => {
     return JSON.stringify(this.db, null, 2);
+  }
+
+  // SMCS Validation Report accessors and re-import
+  getSmcsValidationReport = (): any | null => this.db.smcsValidationReport || null;
+
+  importSmcsData = async (jsonData: string): Promise<void> => {
+    try {
+      const parsed = JSON.parse(jsonData);
+      const program = this.db.accreditationPrograms.find(p => p.id === 'prog-oman-smcs') || {
+        id: 'prog-oman-smcs',
+        name: 'OMAN HEALTHCARE ACCREDITATION PROGRAM',
+        description: { en: 'Specialized Medical Care Services (SMCS)', ar: 'خدمات الرعاية الطبية المتخصصة (SMCS)' }
+      } as AccreditationProgram;
+      if (!this.db.accreditationPrograms.find(p => p.id === program.id)) {
+        this.db.accreditationPrograms.push(program);
+      }
+      const { standards, report } = convertAndValidateSMCS(parsed, program.id);
+      this.db.standards = standards;
+      this.db.smcsValidationReport = report;
+      this.saveDatabase();
+    } catch (e) {
+      console.error('Failed to import SMCS data:', e);
+      throw e;
+    }
   }
 
   importAllData = async (jsonData: string): Promise<void> => {

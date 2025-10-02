@@ -14,6 +14,9 @@ interface GlobeProps {
   lightIntensity: number;
   rotationSpeed: number;
   userLocation?: { lat: number; long: number };
+  showCaption?: boolean;
+  captionTitle?: string;
+  captionSubtitle?: string;
 }
 
 type CustomMarker = {
@@ -37,6 +40,7 @@ const Globe: React.FC<GlobeProps> = ({ width, height, baseColor, markerColor, gl
   }
   const pointerInteracting = useRef<number | null>(null);
   const pointerInteractionMovement = useRef(0);
+  const hoverBoostRef = useRef(0);
   
   const r = useSpring(0, {
     mass: 1,
@@ -87,7 +91,7 @@ const Globe: React.FC<GlobeProps> = ({ width, height, baseColor, markerColor, gl
       theta: initialTheta,
       dark: darkness,
       diffuse: lightIntensity,
-      mapSamples: 16000,
+      mapSamples: 20000,
       mapBrightness: 6,
       baseColor: rgbBaseColor,
       markerColor: rgbMarkerColor,
@@ -95,8 +99,9 @@ const Globe: React.FC<GlobeProps> = ({ width, height, baseColor, markerColor, gl
       markers: markers,
       scale: scale,
       onRender: (state) => {
+        const boost = hoverBoostRef.current || 0;
         state.phi = phi + r.get();
-        phi += rotationSpeed;
+        phi += rotationSpeed + boost;
         state.width = canvasWidth * 2;
         state.height = canvasWidth * 2;
         
@@ -122,44 +127,100 @@ const Globe: React.FC<GlobeProps> = ({ width, height, baseColor, markerColor, gl
   }, [rgbBaseColor, rgbMarkerColor, rgbGlowColor, scale, darkness, lightIntensity, rotationSpeed, r, userLocation]);
 
   return (
-    <div style={{ width, height, aspectRatio: 1, maxWidth: '100%', maxHeight: '100%' }}>
-        <canvas
-            ref={canvasRef}
-            onPointerDown={(e) => {
-              pointerInteracting.current = e.clientX - pointerInteractionMovement.current;
-              canvasRef.current && (canvasRef.current.style.cursor = 'grabbing');
-            }}
-            onPointerUp={() => {
-              pointerInteracting.current = null;
-              canvasRef.current && (canvasRef.current.style.cursor = 'grab');
-            }}
-            onPointerOut={() => {
-              pointerInteracting.current = null;
-              canvasRef.current && (canvasRef.current.style.cursor = 'grab');
-            }}
-            onMouseMove={(e) => {
-              if (pointerInteracting.current !== null) {
-                const delta = e.clientX - pointerInteracting.current;
-                pointerInteractionMovement.current = delta;
-                r.set(delta / 200);
-              }
-            }}
-            onTouchMove={(e) => {
-                if (pointerInteracting.current !== null && e.touches[0]) {
-                    const delta = e.touches[0].clientX - pointerInteracting.current;
-                    pointerInteractionMovement.current = delta;
-                    r.set(delta / 100);
-                }
-            }}
-            style={{
-                width: '100%',
-                height: '100%',
-                cursor: 'grab',
-                contain: 'layout paint size',
-                opacity: 0,
-                transition: 'opacity 1s ease',
-            }}
-        />
+    <div
+      className="relative"
+      role="img"
+      aria-label={"Rotating globe illustrating our dedication to healthcare quality and patient safety globally."}
+      style={{ width, height, aspectRatio: 1, maxWidth: '100%', maxHeight: '100%' }}
+    >
+      {/* Outer ambient glow */}
+      <div
+        className="pointer-events-none absolute inset-0 rounded-full"
+        style={{
+          background: `radial-gradient(closest-side, ${glowColor}22, transparent 70%)`,
+          filter: 'blur(12px)'
+        }}
+      />
+
+      {/* Subtle ring accent */}
+      <div
+        className="pointer-events-none absolute inset-0 rounded-full"
+        style={{
+          background: 'conic-gradient(from 0deg, rgba(99,102,241,0.15), rgba(16,185,129,0.12), rgba(99,102,241,0.15))',
+          mask: 'radial-gradient(circle at center, transparent 55%, black 60%)',
+          WebkitMask: 'radial-gradient(circle at center, transparent 55%, black 60%)',
+          filter: 'blur(6px)'
+        }}
+      />
+
+      {/* Orbit line symbolizing global healthcare connection */}
+      <div
+        className="pointer-events-none absolute inset-0 rounded-full animate-[spin_40s_linear_infinite]"
+        style={{
+          border: '1px dashed rgba(99,102,241,0.25)',
+          transform: 'scale(1.08)'
+        }}
+      />
+
+      {/* Canvas */}
+      <canvas
+        ref={canvasRef}
+        onPointerDown={(e) => {
+          pointerInteracting.current = e.clientX - pointerInteractionMovement.current;
+          canvasRef.current && (canvasRef.current.style.cursor = 'grabbing');
+        }}
+        onPointerUp={() => {
+          pointerInteracting.current = null;
+          canvasRef.current && (canvasRef.current.style.cursor = 'grab');
+        }}
+        onPointerOut={() => {
+          pointerInteracting.current = null;
+          canvasRef.current && (canvasRef.current.style.cursor = 'grab');
+          hoverBoostRef.current = 0;
+        }}
+        onMouseEnter={() => { hoverBoostRef.current = rotationSpeed * 0.5; }}
+        onMouseLeave={() => { hoverBoostRef.current = 0; }}
+        onMouseMove={(e) => {
+          if (pointerInteracting.current !== null) {
+            const delta = e.clientX - pointerInteracting.current;
+            pointerInteractionMovement.current = delta;
+            r.set(delta / 200);
+          }
+        }}
+        onTouchMove={(e) => {
+          if (pointerInteracting.current !== null && e.touches[0]) {
+            const delta = e.touches[0].clientX - pointerInteracting.current;
+            pointerInteractionMovement.current = delta;
+            r.set(delta / 100);
+          }
+        }}
+        style={{
+          width: '100%',
+          height: '100%',
+          cursor: 'grab',
+          contain: 'layout paint size',
+          opacity: 0,
+          transition: 'opacity 1s ease',
+          filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.30))'
+        }}
+      />
+
+      {/* Vignette overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 rounded-full"
+        style={{
+          background: 'radial-gradient(closest-side, transparent 65%, rgba(0,0,0,0.25))'
+        }}
+      />
+
+      {/* Caption (optional) */}
+      {(typeof (true) !== 'undefined') && (
+        <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 text-center w-[90%] max-w-md">
+          <h3 className="text-sm font-semibold tracking-wide text-brand-text-primary/80 dark:text-dark-brand-text-primary/80">
+            { (typeof (true) !== 'undefined') ? ( (arguments && arguments.length) ? '' : '' ) : '' }
+          </h3>
+        </div>
+      )}
     </div>
   );
 };

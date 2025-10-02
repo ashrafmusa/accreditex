@@ -11,6 +11,7 @@ const DataSettingsPage: React.FC = () => {
     const { t } = useTranslation();
     const toast = useToast();
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+    const [smcsReport, setSmcsReport] = useState<any | null>(null);
 
     const handleExport = () => {
         const data = backendService.exportAllData();
@@ -52,6 +53,78 @@ const DataSettingsPage: React.FC = () => {
         setTimeout(() => window.location.reload(), 1500);
     };
 
+    const handleFetchSmcsReport = () => {
+        try {
+            const report = (backendService as any).getSmcsValidationReport?.();
+            if (report) {
+                setSmcsReport(report);
+                toast.success("SMCS validation report loaded");
+            } else {
+                setSmcsReport(null);
+                toast.info("No SMCS validation report found.");
+            }
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to load SMCS validation report.");
+        }
+    };
+
+    const handleDownloadSmcsJSON = () => {
+        try {
+            const json = (backendService as any).getSmcsValidationReportJSON?.();
+            if (!json) { toast.info("No report to download."); return; }
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `smcs_validation_report_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to download JSON report.");
+        }
+    };
+
+    const handleDownloadSmcsCSV = () => {
+        try {
+            const csv = (backendService as any).getSmcsValidationReportCSV?.();
+            if (!csv) { toast.info("No report to download."); return; }
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `smcs_validation_summary_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to download CSV report.");
+        }
+    };
+
+    const handleImportSmcs = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const content = e.target?.result as string;
+                await (backendService as any).importSmcsData?.(content);
+                toast.success("SMCS data imported. Validation report updated.");
+                handleFetchSmcsReport();
+            } catch (err) {
+                console.error(err);
+                toast.error("Failed to import SMCS data.");
+            }
+        };
+        reader.readAsText(file);
+    };
+
     return (
         <>
             <div className="space-y-6">
@@ -79,6 +152,36 @@ const DataSettingsPage: React.FC = () => {
                         <button onClick={() => setIsResetModalOpen(true)} className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 font-semibold text-sm">
                             {t('resetApp')}
                         </button>
+                    </div>
+                </SettingsCard>
+
+                <SettingsCard title="SMCS Tools" description="Import SMCS SATool JSON, refresh validation report, and export QA reports.">
+                    <div className="flex flex-col gap-3">
+                        <div className="flex flex-wrap gap-3">
+                            <label className="cursor-pointer bg-white dark:bg-gray-700 py-2 px-4 border border-gray-300 dark:border-gray-500 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 text-center">
+                                Import SMCS JSON
+                                <input type="file" className="hidden" accept=".json" onChange={handleImportSmcs} />
+                            </label>
+                            <button onClick={handleFetchSmcsReport} className="bg-white dark:bg-gray-700 py-2 px-4 border border-gray-300 dark:border-gray-500 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600">
+                                Refresh Report
+                            </button>
+                            <button onClick={handleDownloadSmcsJSON} className="bg-white dark:bg-gray-700 py-2 px-4 border border-gray-300 dark:border-gray-500 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600">
+                                Download Report (JSON)
+                            </button>
+                            <button onClick={handleDownloadSmcsCSV} className="bg-white dark:bg-gray-700 py-2 px-4 border border-gray-300 dark:border-gray-500 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600">
+                                Download Summary (CSV)
+                            </button>
+                        </div>
+                        {smcsReport ? (
+                            <div className="text-sm text-brand-text-secondary dark:text-dark-brand-text-secondary">
+                                <p>Generated: {new Date(smcsReport.createdAt).toLocaleString()}</p>
+                                <p>
+                                    Standards: {smcsReport.summary?.totalStandards ?? '-'} — Mismatches: {smcsReport.summary?.mismatchedCount ?? '-'} — Duplicates: {smcsReport.summary?.duplicatesCount ?? '-'}
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="text-sm text-brand-text-secondary dark:text-dark-brand-text-secondary">No SMCS validation report available. Import a JSON file or refresh.</p>
+                        )}
                     </div>
                 </SettingsCard>
             </div>

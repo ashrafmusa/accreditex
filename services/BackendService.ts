@@ -223,8 +223,25 @@ class BackendService {
   }
 
   // Add other backend methods as needed...
-  async markNotificationAsRead(userId: string, notificationId: string): Promise<void> {}
-  async markAllNotificationsAsRead(userId: string): Promise<void> {}
+  async markNotificationAsRead(userId: string, notificationId: string): Promise<void> {
+    const all = dataService.getNotifications();
+    let changed = false;
+    const updated = all.map(n => {
+      if (n.userId === userId && n.id === notificationId && !n.read) {
+        changed = true;
+        return { ...n, read: true };
+      }
+      return n;
+    });
+    if (changed) {
+      await dataService.setNotifications(updated);
+    }
+  }
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    const all = dataService.getNotifications();
+    const updated = all.map(n => (n.userId === userId ? { ...n, read: true } : n));
+    await dataService.setNotifications(updated);
+  }
   async updateDesignControls(projectId: string, designControls: DesignControlItem[]): Promise<Project> {
     const project = this.getProjects().find(p => p.id === projectId)!;
     const updatedProject = { ...project, designControls };
@@ -615,6 +632,18 @@ class BackendService {
         await dataService.setAppSettings(settings);
         return settings;
     }
+
+    // SMCS Validation tools
+    getSmcsValidationReport = (): any | null => dataService.getSmcsValidationReport();
+    getSmcsValidationReportCSV = (): string => {
+        const r = dataService.getSmcsValidationReport();
+        return r && r.csv ? r.csv : '';
+    }
+    getSmcsValidationReportJSON = (): string => {
+        const r = dataService.getSmcsValidationReport();
+        return r ? JSON.stringify(r, null, 2) : '';
+    }
+    importSmcsData = (jsonData: string): Promise<void> => this._execute(() => dataService.importSmcsData(jsonData));
 
     // FIX: Add missing data management methods
     exportAllData = (): string => dataService.exportAllData();

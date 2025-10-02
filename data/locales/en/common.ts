@@ -63,4 +63,67 @@ export const en = {
     offlineMessage: 'You are offline. Changes will be saved and synced when you reconnect.',
     onlineMessage: 'You are back online. Syncing changes...',
     syncSuccessMessage: 'Offline changes synced successfully!',
+
+    // SMCS Tools (Settings → Data)
+    smcsToolsTitle: 'SMCS Tools',
+    smcsToolsDescription: 'Import SMCS SATool JSON, refresh validation report, and export QA reports.',
+    importSmcsJson: 'Import SMCS JSON',
+    refreshReport: 'Refresh Report',
+    downloadReportJson: 'Download Report (JSON)',
+    downloadSummaryCsv: 'Download Summary (CSV)',
+    smcsNoReport: 'No SMCS validation report available. Import a JSON file or refresh.',
+    smcsReportLoaded: 'SMCS validation report loaded',
+    smcsReportNone: 'No SMCS validation report found.',
+    smcsReportLoadFailed: 'Failed to load SMCS validation report.',
+    smcsImportSuccess: 'SMCS data imported. Validation report updated.',
+    smcsImportFailed: 'Failed to import SMCS data.',
+    generated: 'Generated',
+    standardsLabel: 'Standards',
+    mismatchesLabel: 'Mismatches',
+    duplicatesLabel: 'Duplicates',
+
+    // Dashboard toggles/tooltips
+    viewAsTable: 'View as Table',
+    hideTable: 'Hide Table',
+    count: 'Count',
+    project: 'Project',
+    status: 'Status',
+    complianceRate: 'Compliance Rate',
+
+    // Project statuses (normalize mapping)
+    notStarted: 'Not Started',
+    inProgress: 'In Progress',
+    onHold: 'On Hold',
+    completed: 'Completed',
+    finalized: 'Finalized',
+
+    // CAPA types
+    corrective: 'Corrective',
+    preventive: 'Preventive',
+
+    // Team member dashboard
+    myOpenTasks: 'My Open Tasks',
+    noTasksAssigned: 'No tasks assigned',
+    tasksCompleted: 'Tasks Completed',
+    myComplianceRate: 'My Compliance Rate',
+    overdue: 'Overdue',
+
+    // Header/dashboard greetings
+    viewMyTasks: 'View My Tasks',
+    welcomeBack: 'Welcome back, {name}',
+    dashboardGreeting: 'Here is a quick overview of your organization\'s accreditation progress.',
+
+    // Notifications
+    notifications: 'Notifications',
+    markAllAsRead: 'Mark all as read',
+    noNewNotifications: 'No new notifications',
+
+    // Login password policy
+    characters: 'characters',
+    oneUppercase: 'one uppercase letter',
+    oneNumber: 'one number',
+    oneSymbol: 'one symbol',
+    passwordLooksGood: 'Password looks good',
+    hidePassword: 'Hide password',
+    showPassword: 'Show password',
 };
