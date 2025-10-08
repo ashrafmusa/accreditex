@@ -1,4 +1,3 @@
-
 export const ar = {
     // General
     cancel: 'إلغاء',
@@ -63,4 +62,8 @@ export const ar = {
     offlineMessage: 'أنت غير متصل. سيتم حفظ التغييرات ومزامنتها عند إعادة الاتصال.',
     onlineMessage: 'لقد عدت متصلاً. جاري مزامنة التغييرات...',
     syncSuccessMessage: 'تمت مزامنة التغييرات التي أجريتها دون اتصال بنجاح!',
+
+    // Not Found Page
+    pageNotFound: 'الصفحة غير موجودة',
+    pageNotFoundMessage: 'يبدو أن الصفحة التي تبحث عنها غير موجودة.',
 };

@@ -27,12 +27,12 @@ interface AppState {
     audits: Audit[];
 
     fetchAllData: () => Promise<void>;
-    
+
     // Documents
     addDocument: (doc: AppDocument) => void;
     updateDocument: (doc: AppDocument) => Promise<void>;
     addControlledDocument: (data: { name: { en: string; ar: string }, type: AppDocument['type'] }) => Promise<void>;
-    addProcessMap: (data: { name: { en: string; ar: string }}) => Promise<void>;
+    addProcessMap: (data: { name: { en: string; ar: string } }) => Promise<void>;
     deleteDocument: (docId: string) => Promise<void>;
     approveDocument: (docId: string, passwordAttempt: string, projectId?: string) => Promise<void>;
 
@@ -40,7 +40,7 @@ interface AppState {
     addDepartment: (dept: Omit<Department, 'id'>) => Promise<void>;
     updateDepartment: (dept: Department) => Promise<void>;
     deleteDepartment: (deptId: string) => Promise<void>;
-    
+
     // Programs & Standards
     addProgram: (program: Omit<AccreditationProgram, 'id'>) => Promise<void>;
     updateProgram: (program: AccreditationProgram) => Promise<void>;
@@ -56,7 +56,7 @@ interface AppState {
     deleteTrainingProgram: (programId: string) => Promise<void>;
     assignTraining: (data: { trainingId: string; userIds: string[]; departmentIds: string[]; dueDate?: string }) => Promise<void>;
     submitQuiz: (trainingId: string, answers: { [questionId: string]: number }) => Promise<{ score: number; passed: boolean; certificateId: string | null }>;
-    
+
     // Competencies
     addCompetency: (comp: Omit<Competency, 'id'>) => Promise<void>;
     updateCompetency: (comp: Competency) => Promise<void>;
@@ -76,10 +76,11 @@ interface AppState {
     deleteAuditPlan: (planId: string) => Promise<void>;
     runAudit: (planId: string) => Promise<void>;
 
-    addCustomEvent: (event: Omit<CustomCalendarEvent, 'id'|'type'>) => Promise<void>;
+    addCustomEvent: (event: Omit<CustomCalendarEvent, 'id' | 'type'>) => Promise<void>;
     updateCustomEvent: (event: CustomCalendarEvent) => Promise<void>;
     deleteCustomEvent: (eventId: string) => Promise<void>;
     updateAppSettings: (settings: AppSettings) => Promise<void>;
+    clearNotifications: () => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -100,6 +101,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     audits: [],
 
     fetchAllData: async () => {
+        const userId = useUserStore.getState().currentUser?.id;
         const data = {
             documents: backendService.getDocuments(),
             departments: backendService.getDepartments(),
@@ -109,7 +111,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             userTrainingStatuses: backendService.getUserTrainingStatuses(),
             certificates: backendService.getCertificates(),
             customEvents: backendService.getCustomEvents(),
-            notifications: [],
+            notifications: userId ? backendService.getNotifications(userId) : [],
             appSettings: backendService.getAppSettings(),
             competencies: backendService.getCompetencies(),
             risks: backendService.getRisks(),
@@ -140,7 +142,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     },
     approveDocument: async (docId, passwordAttempt, projectId) => {
         const currentUser = useUserStore.getState().currentUser;
-        if(!currentUser) return;
+        if (!currentUser) return;
         const updatedDoc = await backendService.approveDocument(docId, currentUser.id, passwordAttempt, projectId);
         set(state => ({ documents: state.documents.map(d => d.id === updatedDoc.id ? updatedDoc : d) }));
     },
@@ -216,10 +218,10 @@ export const useAppStore = create<AppState>((set, get) => ({
         const currentUser = useUserStore.getState().currentUser;
         if (!currentUser) throw new Error("No user logged in");
         const { result, newCertificate } = await backendService.submitQuiz(currentUser.id, trainingId, answers);
-        
+
         const currentStatuses = get().userTrainingStatuses;
         const userStatuses = currentStatuses[currentUser.id] || {};
-        
+
         set({
             userTrainingStatuses: {
                 ...currentStatuses,
@@ -250,7 +252,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         await backendService.deleteCompetency(compId);
         set(state => ({ competencies: state.competencies.filter(c => c.id !== compId) }));
     },
-    
+
     // Risk & Incidents
     addRisk: async (risk) => {
         const newRisk = await backendService.addRisk(risk);
@@ -312,5 +314,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     updateAppSettings: async (settings) => {
         await backendService.updateAppSettings(settings);
         set({ appSettings: settings });
+    },
+    clearNotifications: () => {
+        set({ notifications: [] });
     },
 }));

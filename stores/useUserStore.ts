@@ -24,7 +24,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ users });
   },
   setCurrentUser: (user: User) => {
-      set({ currentUser: user });
+    set({ currentUser: user });
   },
   login: async (email, password) => {
     try {
@@ -36,7 +36,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       return get().currentUser;
     } catch (error) {
       console.error("Firebase login failed:", error);
-      return null;
+      throw error;
     }
   },
   logout: () => {

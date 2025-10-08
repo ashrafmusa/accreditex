@@ -1,4 +1,3 @@
-
 export const en = {
     // General
     cancel: 'Cancel',
@@ -117,6 +116,10 @@ export const en = {
     notifications: 'Notifications',
     markAllAsRead: 'Mark all as read',
     noNewNotifications: 'No new notifications',
+
+    // Not Found Page
+    pageNotFound: 'Page Not Found',
+    pageNotFoundMessage: 'The page you are looking for does not seem to exist.',
 
     // Login password policy
     characters: 'characters',
