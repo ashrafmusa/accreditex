@@ -178,6 +178,6 @@ Contributions are what make the open source community such an amazing place to l
 
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_twitter) - email@example.com
+Ashraf Musa - Ashraf.a.m.ishag@gmail.com
 
 Project Link: [https://github.com/ashrafmusa/accreditex](https://github.com/ashrafmusa/accreditex)
