@@ -9,7 +9,8 @@ AccreditEx is a modern, AI-powered desktop application designed to support healt
 
 ## Screenshots
 
-![AccreditEx Dashboard](https://i.imgur.com/example.png)
+![AccreditEx Dashboard]<img width="1917" height="862" alt="Login_Page" src="https://github.com/user-attachments/assets/069cd6ff-994e-4ac0-833e-729c5dde5161" />
+
 *More screenshots to come!*
 
 ## Features
