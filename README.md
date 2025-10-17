@@ -12,7 +12,6 @@
 [![GitHub deployment](https://img.shields.io/github/deployments/ashrafmusa/accreditex/github-pages.svg)](https://github.com/ashrafmusa/accreditex/deployments)
 [![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ashrafmusa/accreditex.svg)](https://github.com/ashrafmusa/accreditex)
 [![Known Vulnerabilities](https://snyk.io/test/github/ashrafmusa/accreditex/badge.svg)](https://snyk.io/test/github/ashrafmusa/accreditex)
-[![Social Preview](https://github.com/ashrafmusa/accreditex/blob/main/public/social-preview.png?raw=true)](https://github.com/ashrafmusa/accreditex)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/ashrafmusa)
 
 ## Introduction
