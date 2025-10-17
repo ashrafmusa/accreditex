@@ -1,0 +1,8 @@
+{
+  "defaultUserRole": "Team Member",
+  "passwordPolicy": {
+    "minLength": 8,
+    "requireUppercase": false,
+    "requireNumber": false
+  }
+}

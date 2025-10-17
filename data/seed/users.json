@@ -1,0 +1,13 @@
+[
+  {
+    "id": "user-1",
+    "name": "Dr. Evelyn Reed",
+    "email": "e.reed@healthcare.com",
+    "role": "Admin",
+    "departmentId": "dep-7",
+    "jobTitle": "Chief Medical Officer",
+    "hireDate": "2018-03-12",
+    "competencies": [],
+    "trainingAssignments": []
+  }
+]
