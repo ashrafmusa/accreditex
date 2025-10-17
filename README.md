@@ -161,9 +161,7 @@ To get a local copy up and running, follow these simple steps.
     npm run dev
     ```
 
-**Demo Credentials:**
--   **Email**: `e.reed@healthcare.com`
--   **Password**: `password123`
+
 
 ## License
 
