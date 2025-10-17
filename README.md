@@ -2,6 +2,7 @@
 # AccreditEx - Healthcare Accreditation Management
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Dependencies](https://img.shields.io/david/ashrafmusa/accreditex.svg)](https://david-dm.org/ashrafmusa/accreditex)
 [![GitHub stars](https://img.shields.io/github/stars/ashrafmusa/accreditex.svg)](https://github.com/ashrafmusa/accreditex/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/ashrafmusa/accreditex.svg)](https://github.com/ashrafmusa/accreditex/network/members)
 [![GitHub issues](https://img.shields.io/github/issues/ashrafmusa/accreditex.svg)](https://github.com/ashrafmusa/accreditex/issues)
