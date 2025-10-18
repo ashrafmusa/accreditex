@@ -2,7 +2,6 @@
 # AccreditEx - Healthcare Accreditation Management
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Dependencies](https://img.shields.io/david/ashrafmusa/accreditex.svg)](https://david-dm.org/ashrafmusa/accreditex)
 [![GitHub stars](https://img.shields.io/github/stars/ashrafmusa/accreditex.svg)](https://github.com/ashrafmusa/accreditex/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/ashrafmusa/accreditex.svg)](https://github.com/ashrafmusa/accreditex/network/members)
 [![GitHub issues](https://img.shields.io/github/issues/ashrafmusa/accreditex.svg)](https://github.com/ashrafmusa/accreditex/issues)
@@ -17,15 +16,12 @@
 
 [![Code Coverage](https://img.shields.io/codecov/c/github/ashrafmusa/accreditex.svg)](https://codecov.io/gh/ashrafmusa/accreditex)
 [![Maintainability](https://img.shields.io/codeclimate/maintainability/ashrafmusa/accreditex.svg)](https://codeclimate.com/github/ashrafmusa/accreditex)
-[![Technical Debt](https://img.shields.io/sonarcloud/tech_debt/ashrafmusa_accreditex.svg)](https://sonarcloud.io/dashboard?id=ashrafmusa_accreditex)
-[![Lines of Code](https://img.shields.io/tokei/lines/github/ashrafmusa/accreditex)](https://github.com/ashrafmusa/accreditex)
 
 [![CI Build Status](https://img.shields.io/github/actions/workflow/status/ashrafmusa/accreditex/ci.yml)](https://github.com/ashrafmusa/accreditex/actions)
 [![Latest Release](https://img.shields.io/github/v/release/ashrafmusa/accreditex?sort=semver)](https://github.com/ashrafmusa/accreditex/releases)
 [![License Compatibility](https://img.shields.io/librariesio/github/ashrafmusa/accreditex)](https://libraries.io/github/ashrafmusa/accreditex)
 
 [![PRs Welcome](https://img.shields.io/badge/PRs_from_new_contributors-welcome-brightgreen.svg)](https://github.com/ashrafmusa/accreditex/pulls)
-[![Average PR Size](https://img.shields.io/github/pr-size/ashrafmusa/accreditex)](https://github.com/ashrafmusa/accreditex/pulls)
 ## Introduction
 
 AccreditEx is a modern, AI-powered desktop application designed to support healthcare institutions throughout their accreditation journey. By providing a centralized, intuitive platform with a **persistent backend simulated via LocalStorage**, it streamlines the management of accreditation programs (like JCI, DNV, and OSAHI), ensures traceability of all actions, and helps maintain a high level of compliance across the entire organization.
