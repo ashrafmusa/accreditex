@@ -15,6 +15,17 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/ashrafmusa/accreditex/badge.svg)](https://snyk.io/test/github/ashrafmusa/accreditex)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/ashrafmusa)
 
+[![Code Coverage](https://img.shields.io/codecov/c/github/ashrafmusa/accreditex.svg)](https://codecov.io/gh/ashrafmusa/accreditex)
+[![Maintainability](https://img.shields.io/codeclimate/maintainability/ashrafmusa/accreditex.svg)](https://codeclimate.com/github/ashrafmusa/accreditex)
+[![Technical Debt](https://img.shields.io/sonarcloud/tech_debt/ashrafmusa_accreditex.svg)](https://sonarcloud.io/dashboard?id=ashrafmusa_accreditex)
+[![Lines of Code](https://img.shields.io/tokei/lines/github/ashrafmusa/accreditex)](https://github.com/ashrafmusa/accreditex)
+
+[![CI Build Status](https://img.shields.io/github/actions/workflow/status/ashrafmusa/accreditex/ci.yml)](https://github.com/ashrafmusa/accreditex/actions)
+[![Latest Release](https://img.shields.io/github/v/release/ashrafmusa/accreditex?sort=semver)](https://github.com/ashrafmusa/accreditex/releases)
+[![License Compatibility](https://img.shields.io/librariesio/github/ashrafmusa/accreditex)](https://libraries.io/github/ashrafmusa/accreditex)
+
+[![PRs Welcome](https://img.shields.io/badge/PRs_from_new_contributors-welcome-brightgreen.svg)](https://github.com/ashrafmusa/accreditex/pulls)
+[![Average PR Size](https://img.shields.io/github/pr-size/ashrafmusa/accreditex)](https://github.com/ashrafmusa/accreditex/pulls)
 ## Introduction
 
 AccreditEx is a modern, AI-powered desktop application designed to support healthcare institutions throughout their accreditation journey. By providing a centralized, intuitive platform with a **persistent backend simulated via LocalStorage**, it streamlines the management of accreditation programs (like JCI, DNV, and OSAHI), ensures traceability of all actions, and helps maintain a high level of compliance across the entire organization.
