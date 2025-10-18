@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef } from "react";
 // FIX: Corrected import path for types
 import { NavigationState, User } from "./types";
@@ -50,7 +48,7 @@ const AppInitializer: React.FC = () => {
         return;
       }
       initialized.current = true;
-      
+
       try {
         await backendService.initialize();
         await fetchAllAppData();
@@ -66,30 +64,30 @@ const AppInitializer: React.FC = () => {
     initializeApp();
 
     const handleOnline = async () => {
-        toast.info("You are back online. Syncing changes...");
-        try {
-            await backendService.processOfflineQueue();
-            // Refetch all data to ensure UI is consistent after sync
-            await fetchAllAppData();
-            await fetchProjects();
-            await fetchUsers();
-            toast.success("Offline changes synced successfully!");
-        } catch (error) {
-            console.error("Failed to sync offline changes:", error);
-            toast.error("Failed to sync some offline changes.");
-        }
+      toast.info("You are back online. Syncing changes...");
+      try {
+        await backendService.processOfflineQueue();
+        // Refetch all data to ensure UI is consistent after sync
+        await fetchAllAppData();
+        await fetchProjects();
+        await fetchUsers();
+        toast.success("Offline changes synced successfully!");
+      } catch (error) {
+        console.error("Failed to sync offline changes:", error);
+        toast.error("Failed to sync some offline changes.");
+      }
     };
 
     const handleOffline = () => {
-        toast.info("You are offline. Changes will be saved and synced later.");
+      toast.info("You are offline. Changes will be saved and synced later.");
     };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-        window.removeEventListener('online', handleOnline);
-        window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -97,7 +95,10 @@ const AppInitializer: React.FC = () => {
   useEffect(() => {
     console.log("DEBUG: Running primaryColor useEffect");
     if (appSettings?.primaryColor) {
-      document.documentElement.style.setProperty('--brand-primary-color', appSettings.primaryColor);
+      document.documentElement.style.setProperty(
+        "--brand-primary-color",
+        appSettings.primaryColor
+      );
     }
   }, [appSettings?.primaryColor]);
 
@@ -123,12 +124,11 @@ const AppManager: React.FC = () => {
   useFirebaseAuth(); // This hook handles user state
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       setAuthChecked(true);
     });
     return () => unsubscribe();
   }, []);
-
 
   const handleOnboardingComplete = () => {
     localStorage.setItem("accreditex-onboarding-complete", "true");
@@ -136,7 +136,7 @@ const AppManager: React.FC = () => {
   };
 
   if (!authChecked) {
-      return <LoadingScreen />; // Show loading screen while checking auth
+    return <LoadingScreen />; // Show loading screen while checking auth
   }
 
   if (!currentUser) {
