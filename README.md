@@ -1,40 +1,38 @@
 # AccreditEx - AI-Powered Healthcare Accreditation Management
 
-## 1. Introduction
-
 AccreditEx is a modern, responsive, and AI-powered desktop application designed to support healthcare institutions throughout their accreditation journey. It provides a comprehensive suite of tools to streamline the management of accreditation programs, ensure traceability, and help maintain compliance with complex standards.
 
-This application is currently built with a **mock backend using local JSON data** to provide a fully interactive "as-live" prototype. The application is architected with a clean service layer, making it straightforward to transition to a live backend (see `backend_development.md`).
+This application is currently built with a **mock backend using local JSON data** to provide a fully interactive "as-live" prototype. The application is architected with a clean service layer, making it straightforward to transition to a live backend.
 
-## 2. Core Features
+## Core Features
 
 AccreditEx is organized into several key modules, each addressing a critical aspect of accreditation management.
 
-### **Dashboard & Hubs**
+### Dashboard & Hubs
 -   **Role-Based Dashboards**: Customized landing pages for Admins, Project Leads, and Team Members, providing relevant overviews and quick access to tasks.
 -   **Central Hubs**: Dedicated hubs for Accreditation, Audits, Document Control, and Risk Management, offering centralized control and visibility.
 
-### **Accreditation & Project Management**
+### Accreditation & Project Management
 -   **Dynamic Program Management**: Create, update, and delete accreditation programs and their associated standards.
 -   **Automated Project Creation**: Generate projects from accreditation programs, which automatically creates comprehensive checklists from the library of standards.
 -   **Task Management**: Assign, track, and manage tasks related to each project checklist item.
 
-### **Document Control**
+### Document Control
 -   **Controlled Document Management**: A secure system for drafting, reviewing, approving, and archiving controlled documents.
 -   **Version History**: Full version tracking for all documents.
 -   **In-App Editor**: A rich text editor for creating and modifying documents directly within the application.
 -   **Evidence Upload**: Link evidence and artifacts to checklist items.
 
-### **Risk & Quality Management**
+### Risk & Quality Management
 -   **Risk Register**: A centralized register to identify, assess, and track risks.
 -   **CAPA System**: Manage Corrective and Preventive Actions (CAPA) from incidents or audit findings.
 -   **Incident Reporting**: A simple interface for staff to report incidents.
 
-### **User & Department Management**
+### User & Department Management
 -   **User Administration**: Onboard new users, manage roles (Admin, Project Lead, Team Member), and assign them to departments.
 -   **Competency Library**: Define and manage staff competencies and certifications.
 
-## 3. AI-Powered Capabilities
+## AI-Powered Capabilities
 
 AccreditEx leverages Google's Generative AI to enhance productivity and provide intelligent insights.
 -   **AI Assistant for Documents**:
@@ -44,7 +42,7 @@ AccreditEx leverages Google's Generative AI to enhance productivity and provide 
 -   **AI Quality Briefing**: Get AI-generated summaries and insights on quality metrics and performance.
 -   **Root Cause Analysis**: Use AI to help identify the root causes of incidents or non-compliance issues.
 
-## 4. Tech Stack
+## Tech Stack
 
 -   **Frontend**: React, Vite, TypeScript
 -   **Styling**: Tailwind CSS
@@ -54,10 +52,61 @@ AccreditEx leverages Google's Generative AI to enhance productivity and provide 
 -   **Backend**: Mock service layer using local JSON files.
 -   **AI**: Google Generative AI (`@google/genai`)
 
-## 5. Getting Started
+## Getting Started
 
-*(Instructions on how to install dependencies and run the project would go here. e.g., `npm install` and `npm run dev`)*
+To get a local copy up and running, follow these simple steps.
 
-## 6. Backend Integration
+### Prerequisites
 
-The current implementation uses a mock backend that simulates API calls and data persistence in-memory. The data service layer is designed to be easily swappable with a live backend. For more details on transitioning to a production backend, please refer to the `backend_development.md` guide.
+You need to have Node.js and npm installed on your machine. You can download them from [https://nodejs.org/](https://nodejs.org/).
+
+### Installation
+
+1.  Clone the repo
+    ```sh
+    git clone https://github.com/ashrafmusa/AccreditEx.git
+    ```
+2.  Install NPM packages
+    ```sh
+    npm install
+    ```
+3.  Run the development server
+    ```sh
+    npm run dev
+    ```
+This will start the application in development mode, and you can view it in your browser at `http://localhost:3000`.
+
+## Backend Integration
+
+The current implementation uses a mock backend that simulates API calls and data persistence in-memory. This allows for rapid prototyping and a fully interactive user experience without requiring a live database.
+
+The data service layer (located in `src/services`) is designed to be easily swappable. Each service is a class that can be replaced with a version that makes live API calls to a real backend. For more details on transitioning to a production backend, please refer to the `backend_development.md` guide.
+
+## Deployment
+
+This application is deployed to Firebase Hosting. The `dist` directory, generated by the `npm run build` command, is deployed.
+
+To deploy the application, you will need to have the Firebase CLI installed and be authenticated with your Firebase account.
+
+```sh
+npm run build
+firebase deploy --only hosting
+```
+
+## Contributing
+
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+
+Don't forget to give the project a star! Thanks again!
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
