@@ -3,7 +3,6 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/index.tsx',
-  '/manifest.json',
   // CDN dependencies from importmap
   'https://aistudiocdn.com/react@^19.1.1',
   'https://aistudiocdn.com/react-dom@^19.1.1/client',
