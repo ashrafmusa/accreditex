@@ -1,0 +1,23 @@
+export const en = {
+    departmentsHub: 'Departments Hub',
+    departmentsHubDescription: 'Organize users and track performance by department.',
+    addNewDepartment: 'Add New Department',
+    noDepartments: 'No Departments Found',
+    noDepartmentsMessage: 'Create a new department to start organizing your teams.',
+    teamMembers: 'Team Members',
+    tasksAssigned: 'Tasks Assigned',
+    editDepartment: 'Edit Department',
+    deleteDepartment: 'Delete Department',
+    areYouSureDeleteDepartment: 'Are you sure you want to delete this department? Users in this department will become unassigned.',
+    departmentNameEn: 'Department Name (English)',
+    departmentNameAr: 'Department Name (Arabic)',
+    departmentDetails: 'Department Details',
+    totalMembers: 'Total Members',
+    totalTasks: 'Total Tasks',
+    departmentMembers: 'Department Members',
+    noUsersInDepartment: 'There are no users in this department.',
+    searchByTask: 'Search by task or standard ID...',
+    noTasksForDepartment: 'No tasks are currently assigned to this department.',
+    // FIX: Add missing translation key
+    assignedUsers: 'Assigned Users',
+};

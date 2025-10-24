@@ -1,0 +1,23 @@
+export const ar = {
+    departmentsHub: 'مركز الأقسام',
+    departmentsHubDescription: 'نظم المستخدمين وتتبع الأداء حسب القسم.',
+    addNewDepartment: 'إضافة قسم جديد',
+    noDepartments: 'لم يتم العثور على أقسام',
+    noDepartmentsMessage: 'أنشئ قسمًا جديدًا لبدء تنظيم فرقك.',
+    teamMembers: 'أعضاء الفريق',
+    tasksAssigned: 'المهام المعينة',
+    editDepartment: 'تعديل القسم',
+    deleteDepartment: 'حذف القسم',
+    areYouSureDeleteDepartment: 'هل أنت متأكد أنك تريد حذف هذا القسم؟ سيصبح المستخدمون في هذا القسم غير معينين.',
+    departmentNameEn: 'اسم القسم (الإنجليزية)',
+    departmentNameAr: 'اسم القسم (العربية)',
+    departmentDetails: 'تفاصيل القسم',
+    totalMembers: 'إجمالي الأعضاء',
+    totalTasks: 'إجمالي المهام',
+    departmentMembers: 'أعضاء القسم',
+    noUsersInDepartment: 'لا يوجد مستخدمون في هذا القسم.',
+    searchByTask: 'ابحث بالمهمة أو معرف المعيار...',
+    noTasksForDepartment: 'لا توجد مهام معينة حاليًا لهذا القسم.',
+    // FIX: Add missing translation key
+    assignedUsers: 'المستخدمون المعينون',
+};

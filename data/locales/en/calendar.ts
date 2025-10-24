@@ -1,0 +1,20 @@
+export const en = {
+    // Calendar
+    month: 'Month',
+    agenda: 'Agenda',
+    year: 'Year',
+    today: 'Today',
+    noEventsForDay: 'No events scheduled for this day.',
+    noEventsForMonth: 'No events scheduled for this month.',
+    createEvent: 'Create Event',
+    editEvent: 'Edit Event',
+    eventDate: 'Event Date',
+    eventTitleEn: 'Event Title (English)',
+    eventTitleAr: 'Event Title (Arabic)',
+    eventDescriptionEn: 'Description (English)',
+    eventDescriptionAr: 'Description (Arabic)',
+    areYouSureDeleteEvent: 'Are you sure you want to delete this event?',
+    dueDate: 'Due Date',
+    review: 'Review',
+    complianceCalendar: 'Compliance Calendar',
+};

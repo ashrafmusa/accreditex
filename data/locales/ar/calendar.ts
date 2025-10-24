@@ -1,0 +1,20 @@
+export const ar = {
+    // Calendar
+    month: 'شهر',
+    agenda: 'أجندة',
+    year: 'سنة',
+    today: 'اليوم',
+    noEventsForDay: 'لا توجد أحداث مجدولة لهذا اليوم.',
+    noEventsForMonth: 'لا توجد أحداث مجدولة لهذا الشهر.',
+    createEvent: 'إنشاء حدث',
+    editEvent: 'تعديل الحدث',
+    eventDate: 'تاريخ الحدث',
+    eventTitleEn: 'عنوان الحدث (الإنجليزية)',
+    eventTitleAr: 'عنوان الحدث (العربية)',
+    eventDescriptionEn: 'الوصف (الإنجليزية)',
+    eventDescriptionAr: 'الوصف (العربية)',
+    areYouSureDeleteEvent: 'هل أنت متأكد أنك تريد حذف هذا الحدث؟',
+    dueDate: 'تاريخ الاستحقاق',
+    review: 'مراجعة',
+    complianceCalendar: 'تقويم الامتثال',
+};
