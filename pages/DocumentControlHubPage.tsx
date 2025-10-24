@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { AppDocument, User, UserRole, Standard } from '../../types';
-import { useTranslation } from '../../hooks/useTranslation';
+import { AppDocument, User, UserRole, Standard } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
 import { DocumentTextIcon, PlusIcon, ChevronDownIcon, CheckCircleIcon, ClockIcon, PencilIcon } from '../components/icons';
 import SignatureModal from '../components/common/SignatureModal';
 import DocumentMetadataModal from '../components/documents/DocumentMetadataModal';

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { IncidentReport } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 import IncidentModal from './IncidentModal';
-import ConfirmationModal from './ConfirmationModal';
+import ConfirmationModal from '../common/ConfirmationModal';
 import { PencilIcon, PlusIcon, TrashIcon } from '../icons';
 
 interface IncidentReportingTabProps {

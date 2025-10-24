@@ -3,7 +3,7 @@ import { Risk, User, TrainingProgram } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 import RiskMatrix from './RiskMatrix';
 import RiskModal from './RiskModal';
-import ConfirmationModal from './ConfirmationModal';
+import ConfirmationModal from '../common/ConfirmationModal';
 import { PencilIcon, PlusIcon, TrashIcon } from '../icons';
 
 interface RiskRegisterTabProps {

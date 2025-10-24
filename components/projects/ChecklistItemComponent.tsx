@@ -5,7 +5,7 @@ import {
   CheckCircleIcon, XCircleIcon, MinusCircleIcon, SlashCircleIcon, SparklesIcon,
   ChevronDownIcon, ChatBubbleLeftEllipsisIcon
 } from '../icons';
-import { aiService } from '../../services/aiService';
+import { aiService } from '../../services/ai';
 import { useToast } from '../../hooks/useToast';
 import ChecklistEvidence from './ChecklistEvidence';
 import ChecklistComments from './ChecklistComments';
@@ -85,7 +85,7 @@ const ChecklistItemComponent: React.FC<ChecklistItemProps> = ({ item, standard, 
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">{t('assignedTo')}</label>
+              <label className="block text-sm font-mmedium mb-1">{t('assignedTo')}</label>
               <select value={item.assignedTo || ''} onChange={e => onUpdate(item.id, { assignedTo: e.target.value || null })} disabled={isFinalized} className="w-full text-sm p-2 border rounded-md">
                 <option value="">{t('unassigned')}</option>
                 {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}

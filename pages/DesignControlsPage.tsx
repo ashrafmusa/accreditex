@@ -1,8 +1,8 @@
 
 import React, { useMemo, useState } from 'react';
-import { useTranslation } from '../../hooks/useTranslation';
+import { useTranslation } from '../hooks/useTranslation';
 import { Project } from '../types';
-import { BeakerIcon, PlusIcon } from '../icons';
+import { BeakerIcon, PlusIcon } from '../components/icons';
 import EmptyState from '../components/common/EmptyState';
 
 interface DesignControlsPageProps {
